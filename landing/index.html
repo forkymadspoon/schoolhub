@@ -174,30 +174,9 @@
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
     }
-    .nav-logo-icon {
-      width: 40px; height: 40px;
-      background: #fff;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      overflow: hidden;
-      padding: 2px;
-      transition: transform 200ms ease, box-shadow 200ms ease;
-    }
-    .nav-logo:hover .nav-logo-icon { transform: scale(1.08); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
-    .nav-logo-text {
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-      font-family: var(--font-heading);
-    }
-    .nav-logo-text em { font-style: normal; color: var(--primary); }
+    .nav-logo img { display: block; transition: opacity 200ms ease; }
+    .nav-logo:hover img { opacity: 0.82; }
     .nav-right {
       display: flex;
       align-items: center;
@@ -736,13 +715,6 @@
       align-items: center;
       gap: 16px;
     }
-    .footer-logo-text {
-      font-family: var(--font-heading);
-      font-size: 20px;
-      font-weight: 400;
-      color: #fff;
-    }
-    .footer-logo-text em { font-style: normal; color: var(--primary); }
     .footer-links {
       display: flex;
       gap: 24px;
@@ -837,7 +809,7 @@
     }
 
     @media (max-width: 360px) {
-      .nav-logo-text { display: none; }
+      .nav-logo img { height: 28px; width: auto; }
     }
   </style>
 </head>
@@ -848,10 +820,7 @@
 ════════════════════════════════════════════════════════════ -->
 <nav class="navbar" role="navigation" aria-label="Main navigation">
   <a href="#top" class="nav-logo" aria-label="SchoolHub home">
-    <div class="nav-logo-icon" aria-hidden="true">
-      <img src="logo-icon.png" width="36" height="36" alt="" style="object-fit:contain;display:block;" draggable="false">
-    </div>
-    <span class="nav-logo-text">School<em>Hub</em></span>
+    <img src="icon-dark.svg" alt="SchoolHub" height="36" width="84" draggable="false">
   </a>
   <div class="nav-right">
     <a href="#waitlist" class="btn btn-green" aria-label="Join the SchoolHub waitlist">Join Waitlist</a>
@@ -986,8 +955,17 @@
         <!-- Drop shadow -->
         <ellipse cx="140" cy="280" rx="58" ry="9" fill="#1CB8F528"/>
 
-        <!-- Actual logo image, centred in the scene -->
-        <image href="logo-icon.png" x="15" y="25" width="250" height="250" preserveAspectRatio="xMidYMid meet"/>
+        <!-- Mascot — inline SVG paths cropped to icon region only -->
+        <svg x="45" y="98" width="190" height="154" viewBox="47 0 44.5 36">
+          <path d="M82.3971 5.27692C84.7648 7.78077 85.7592 11.2 86.1784 15.9923C87.2914 15.9923 88.3293 16.2397 89.0299 17.1958L90.3387 18.9727C90.7144 19.4815 90.9169 20.0979 90.9165 20.7308V25.5581C90.9152 26.1813 90.6069 26.789 90.1049 27.1573C84.1784 31.5037 76.8659 35 69.4165 35C61.1749 35 52.9237 30.2425 48.7281 27.1573C48.2261 26.789 47.9177 26.1813 47.9165 25.5581V20.7308C47.9165 20.0954 48.1181 19.4815 48.4916 18.97L49.8004 17.1958C50.5014 16.2439 51.544 15.9923 52.6546 15.9923C53.0738 11.2 54.0655 7.78077 56.4359 5.27692C60.9057 0.532572 66.8242 0.0100962 69.3413 0H69.4165C71.889 0 77.8821 0.484615 82.3971 5.27692ZM69.4192 13.2488C68.9086 13.2488 68.32 13.2785 67.6938 13.3404C67.4734 14.1642 67.1483 14.9073 66.6726 15.3812C64.7913 17.2658 62.5231 17.5565 61.3083 17.5565C60.1658 17.5565 58.969 17.3176 57.9919 16.7004C57.0678 17.0046 56.1802 17.4433 56.1214 18.5365C56.023 20.6029 56.0144 22.6675 56.0059 24.7329C56.0015 25.7694 55.9975 26.8063 55.9817 27.8438C55.9857 28.4461 56.3482 29.0054 56.8954 29.2546C61.3433 31.2846 65.5492 32.3077 69.4192 32.3077C73.2838 32.3077 77.4898 31.2846 81.9349 29.2546C82.4821 29.0056 82.8444 28.4461 82.8486 27.8438C82.9019 24.7447 82.859 21.6327 82.7116 18.5365H82.7143C82.6568 17.4371 81.7656 17.0056 80.8384 16.7004C79.8608 17.3149 78.667 17.5565 77.5247 17.5565C76.3099 17.5565 74.0444 17.2658 72.1604 15.3812C71.6848 14.9073 71.3596 14.1642 71.1392 13.3404C70.5677 13.2821 69.9937 13.2515 69.4192 13.2488ZM61.5959 4.76538C59.7146 4.95385 58.129 5.57308 57.3228 6.43462C55.5759 8.34615 55.9521 13.1923 56.9465 14.2154C57.6721 14.9423 59.0428 15.4269 60.5209 15.4269C61.6496 15.4269 63.7996 15.1846 65.5734 13.3808C66.3528 12.6269 66.8365 10.7423 66.7828 8.83077C66.729 7.29615 66.299 6.03077 65.654 5.49231C64.9553 4.87308 63.3696 4.60385 61.5959 4.76538ZM73.179 5.49231C72.534 6.03077 72.104 7.29615 72.0503 8.83077C71.9965 10.7423 72.4803 12.6269 73.2596 13.3808C75.0334 15.1846 77.1834 15.4269 78.3121 15.4269C79.7903 15.4269 81.1609 14.9423 81.8865 14.2154C82.8809 13.1923 83.2571 8.34615 81.5103 6.43462C80.704 5.57308 79.1184 4.95385 77.2371 4.76538C75.4634 4.60385 73.8778 4.87308 73.179 5.49231ZM69.4165 9.42308C68.9865 9.42308 68.4759 9.45 67.9115 9.50385C67.9653 9.8 67.9921 10.1231 68.019 10.4731C68.019 10.7154 68.019 10.9577 67.9921 11.2269C68.5296 11.1731 68.9865 11.1731 69.4165 11.1731C69.8465 11.1731 70.3034 11.1731 70.8409 11.2269C70.814 10.9577 70.814 10.7154 70.814 10.4731C70.8409 10.1231 70.8678 9.8 70.9215 9.50385C70.3571 9.45 69.8465 9.42308 69.4165 9.42308Z" fill="#3DA3ED"/>
+          <circle cx="64.4165" cy="22.5" r="1.5" fill="#3DA3ED"/>
+          <circle cx="74.4165" cy="22.5" r="1.5" fill="#3DA3ED"/>
+          <rect x="67.9165" y="26" width="3" height="1" rx="0.5" fill="#3DA3ED"/>
+          <rect x="59.9165" y="11.4587" width="2.8" height="0.6" rx="0.3" transform="rotate(-31.3974 59.9165 11.4587)" fill="#C2C6C6"/>
+          <rect x="59.9165" y="13.2533" width="4.32521" height="0.5" rx="0.25" transform="rotate(-31.3974 59.9165 13.2533)" fill="#C2C6C6"/>
+          <rect x="75.9165" y="11.4587" width="2.8" height="0.6" rx="0.3" transform="rotate(-31.3974 75.9165 11.4587)" fill="#C2C6C6"/>
+          <rect x="75.9165" y="13.2533" width="4.32521" height="0.5" rx="0.25" transform="rotate(-31.3974 75.9165 13.2533)" fill="#C2C6C6"/>
+        </svg>
 
         <!-- Book (top right) -->
         <g transform="translate(212, 48)" class="float-2">
@@ -1171,7 +1149,7 @@
 ════════════════════════════════════════════════════════════ -->
 <footer>
   <div class="footer-inner">
-    <div class="footer-logo-text">School<em>Hub</em></div>
+    <img src="icon-dark.svg" alt="SchoolHub" height="30" width="70" draggable="false" style="display:block">
     <nav class="footer-links" aria-label="Footer navigation">
       <a href="#top">Home</a>
       <a href="#waitlist">Join Waitlist</a>

@@ -1,0 +1,233 @@
+════════════════════════════════════════════════════════════════════════════
+  SCHOOLHUB — DESIGN & DEVELOPMENT PACKAGE
+  Aligned to PRD v3.0 (April 2026)
+════════════════════════════════════════════════════════════════════════════
+
+STATUS: Approved for MVP Development
+LAUNCH: June 2026 Beta
+SCOPE:  Singapore · K2 → P6 · Web-only responsive PWA
+
+────────────────────────────────────────────────────────────────────────────
+
+WHAT'S IN THIS PACKAGE
+
+  01_Start_Here/
+    - START_HERE.md
+    - DELIVERY_SUMMARY.txt          (this file)
+
+  02_Core_Documentation/
+    - SchoolHub_PRD_v3.md         ← authoritative
+    - SchoolHub_API_Reference.md
+    - SchoolHub_Quick_Reference.md
+    - SchoolHub_Documentation_Index.md
+    - SchoolHub_Complete_Documentation_Summary.md
+    - archive/                      (v1, v2 — historical)
+
+  03_Skills_Framework/
+    - SchoolHub_Skills_Framework.md
+    - schoolhub-fullstack-dev-skill.md
+    - schoolhub-product-design-skill.md
+    - schoolhub-ai-curriculum-skill.md
+
+  04_Curriculum_Sync/
+    - SchoolHub_Curriculum_Sync_Summary.md
+    - SchoolHub_Curriculum_Sync_Technical_Guide.md
+
+  05_Features/
+    - SchoolHub_Parent_Notifications_Implementation.md
+
+────────────────────────────────────────────────────────────────────────────
+
+KEY CHANGES IN v3.0 (2026-04-24)
+
+  SCOPE NARROWED
+    - Preschool (3–5) removed
+    - Secondary (Sec 1–4) removed
+    - Focus: Singapore primary market, ages 6–12
+
+  FOUR NEW CRITICAL FEATURES
+    1. Data Input — parents upload spelling lists, school calendars,
+       assessment dates (.csv / .xlsx / .txt / .ics / .pdf)
+    2. SEN Support Framework — ADHD, Autism Spectrum, Other SEN.
+       Overlay on grade-band variant. Psychologist review pre-beta.
+    3. Mental Health Guardrails — rule-based, suggestion-only,
+       parent override. No AI classification. Not clinical.
+    4. Sibling Timeline Dashboard — home screen for multi-child accounts
+
+  K2 READINESS MODE
+    - Replaces MOE syllabus for K2 children
+    - Three pre-built tracks: English, Math, Chinese Foundations
+    - Countdown shows "P1 in N days"
+
+  CLAUDE SONNET — 5 USE CASES
+    - Model: claude-sonnet-4-6
+    - Curriculum parsing, upload parsing, schedule generation,
+      bite generation, weak-topic explanation
+    - All outputs zod-validated before DB write
+
+────────────────────────────────────────────────────────────────────────────
+
+GRADE BANDS (K2 → P6)
+
+  K2                  Visual-first, readiness tracks, TTS auto,
+                      56×56 tap targets, FK ≤ 2
+
+  Lower Primary       P1–P3, guided visual, TTS auto P1–P2,
+                      56×56 tap targets, FK ≤ 3
+
+  Upper Primary       P4–P6 (PSLE focus at P6), transitional UI,
+                      TTS opt-in, 44×44 tap targets, FK ≤ 6
+
+────────────────────────────────────────────────────────────────────────────
+
+SEN OVERLAYS
+
+  ADHD                5-minute bite cap, focus mode,
+                      high-frequency reminders, leaderboard hidden,
+                      ABA + CBT frameworks
+
+  Autism Spectrum     48-hour advance notice on schedule changes,
+                      motion disabled, predictable cadence,
+                      structured routines + social story
+
+  Other SEN           Scaffolded hints, extended response time,
+                      parent frustration alert,
+                      Vygotsky ZPD framework
+
+  Psychologist review required pre-beta.
+  SEN does not alter content — only pacing, structure,
+  reward cadence, and notification behaviour.
+
+────────────────────────────────────────────────────────────────────────────
+
+MENTAL HEALTH GUARDRAILS (RULE-BASED)
+
+  overload_risk          Study hours > 2× weekly default
+  burnout_risk           Streak drop 3+ consecutive days
+  comprehension_plateau  Same topic failed 3+ bites
+  activity_imbalance     7+ consecutive study days, no break
+  exam_anxiety           < 14 days to exam + completion rate drop
+
+  Suggestions only. Parent always overrides. Never clinical claims.
+  Wellbeing dashboard gated to Scholar Pro.
+
+────────────────────────────────────────────────────────────────────────────
+
+15 MVP FEATURES (PRD v3 §6)
+
+  CRITICAL
+    Gamification · Chinese · Tiered pricing + free trial ·
+    Data input · SEN support · Mental-health guardrails
+
+  HIGH
+    3-min onboarding · Sibling timeline dashboard ·
+    One-tap schedule regeneration · Configurable notifications
+
+  MEDIUM
+    Shareable progress report · Exam countdown · Weak-topic explanations
+
+  LOW
+    Dark mode · Offline PWA
+
+────────────────────────────────────────────────────────────────────────────
+
+TECH STACK
+
+  Frontend      React 18 + TypeScript + Tailwind + shadcn/ui (PWA)
+  Backend       Node.js + Express + TypeScript
+  Database      Supabase (PostgreSQL + Auth)
+  AI            Claude Sonnet (claude-sonnet-4-6)
+  Notifications Telegram Bot API (primary) + Twilio SMS (fallback)
+  Offline       Workbox service worker
+  Images        Canvas / Puppeteer (1080×1350 WhatsApp cards)
+  Hosting       Vercel + Railway + Supabase
+  Cron          GitHub Actions (weekly MOE sync)
+
+────────────────────────────────────────────────────────────────────────────
+
+PRICING
+
+  Free (7-day trial)  $0       1 child   · 1 subject · no CC required
+  Scholar             $18/mo   2 kids    · all subjects · gamification ·
+                               reports · dark mode · SEN (1 child)
+  Scholar Pro         $35/mo   4 kids    · all above + offline PWA ·
+                               priority support · exam packs ·
+                               SEN (all children) · wellbeing dashboard
+
+  Annual = 2 months free.
+
+────────────────────────────────────────────────────────────────────────────
+
+PERFORMANCE TARGETS
+
+  Onboarding              < 3 min
+  Grade-band UI switch    < 300 ms
+  XP payout               < 2 s (WebSocket)
+  Curriculum parse        ≥ 90% accuracy
+  ADHD bite cap           ≤ 5 min
+  ASD schedule notice     ≥ 48 h
+  Progress card           1080×1350 px
+  Data residency          Supabase Singapore — PDPA
+
+────────────────────────────────────────────────────────────────────────────
+
+SUCCESS METRICS (YEAR 1)
+
+  - 500 active users by Month 6
+  - 8–12% trial-to-paid conversion
+  - 60%+ monthly retention
+  - 40%+ DAU/MAU
+  - 70%+ bite completion
+  - 80%+ positive SEN parent satisfaction (beta)
+  - SGD $5,000 MRR by Month 12
+
+────────────────────────────────────────────────────────────────────────────
+
+TOP RISKS
+
+  HIGH   Chinese content quality  → MOE-trained educator review
+  HIGH   SEN content accuracy     → Psychologist review; not clinical
+  MED    Mental-health false-pos  → Suggestions only; parent override
+  MED    PWA iOS Safari           → Dedicated iOS test suite
+  MED    Low trial-to-paid        → 7-day trial + shareable card
+  MED    Gamification stress      → Per-child opt-out + auto-pause
+
+────────────────────────────────────────────────────────────────────────────
+
+LAUNCH READINESS CHECKLIST (PRE-BETA)
+
+  [ ] All 15 features from PRD v3 §6 shipped
+  [ ] Psychologist review of SEN framework complete
+  [ ] MOE-trained Chinese educator review complete
+  [ ] Curriculum parse accuracy sampled ≥ 5% and measured ≥ 90%
+  [ ] Performance targets met (onboarding / XP / UI switch)
+  [ ] PWA iOS Safari test suite passing
+  [ ] Beta cohort of 20 families onboarded
+  [ ] PDPA review complete
+
+────────────────────────────────────────────────────────────────────────────
+
+GET STARTED
+
+  1. Read 01_Start_Here/START_HERE.md (10 min)
+  2. Read 02_Core_Documentation/SchoolHub_Quick_Reference.md (5 min)
+  3. Read 02_Core_Documentation/SchoolHub_PRD_v3.md (45 min)
+  4. Pick your role-specific skill in 03_Skills_Framework/
+  5. Follow the sprint plan in SchoolHub_Skills_Framework.md
+
+────────────────────────────────────────────────────────────────────────────
+
+VERSION HISTORY
+
+  1.0   2026-04-22   Initial release (automated MOE curriculum sync)
+  2.0   2026-04-23   MVP Improvements Update
+  3.0   2026-04-24   SEN & Mental Health Update
+                     Scope narrowed to K2–P6.
+                     4 new features (Data Input, SEN Support,
+                     Mental Health Guardrails, Sibling Dashboard).
+                     Preschool + Secondary removed.
+
+Package Version: 3.0
+Last Updated:    2026-04-24
+Status:          Approved for MVP Development
+════════════════════════════════════════════════════════════════════════════

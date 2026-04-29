@@ -766,14 +766,47 @@
 
     @media (max-width: 600px) {
       .navbar { padding: 10px 16px; }
-      .hero { padding: 90px 16px 60px; }
-      .cd-num { font-size: 30px; }
-      .cd-card { min-width: 66px; padding: 10px 12px; }
-      .hero-form { padding: 24px 20px; }
+
+      /* Hero */
+      .hero { padding: 80px 16px 48px; }
+      .hero-inner { gap: 28px; }
+      .hero-badge-wrap { margin-bottom: 18px; }
+      .hero-sub { margin-bottom: 24px; }
+      .launch-chip { margin-bottom: 20px; font-size: 12px; }
+
+      /* Countdown */
+      .countdown { gap: 8px; margin-bottom: 28px; }
+      .cd-card { min-width: 58px; padding: 8px 10px; }
+      .cd-num { font-size: 26px; }
+      .cd-label { font-size: 10px; letter-spacing: 1px; }
+
+      /* Form */
+      .hero-form { padding: 24px 20px; box-shadow: 4px 4px 0 #000; }
+
+      /* Hide SVG mascot scene — prevents overflow and dead space */
+      .hero-visual { display: none; }
+      .chip { display: none; }
+
+      /* Trust bar — 2×2 grid */
+      .trust-inner { gap: 0; }
+      .trust-item  { width: 50%; padding: 14px 12px; }
+      .trust-num   { font-size: 26px; }
+      .trust-label { font-size: 12px; }
+
+      /* Share section */
       .share-card-inner { padding: 32px 24px; }
+      .share-buttons { flex-direction: column; align-items: stretch; }
+      .share-btn { justify-content: center; }
+
+      /* Final CTA */
+      .final-cta { padding: 64px 16px; }
+      .final-p   { font-size: 17px; margin-bottom: 28px; }
       .final-form { flex-direction: column; }
       .final-form input { width: 100%; }
-      .chip { display: none; }
+    }
+
+    @media (max-width: 360px) {
+      .nav-logo-text { display: none; }
     }
   </style>
 </head>

@@ -9,34 +9,31 @@
   <title>SchoolHub — Study Smarter, Stress Less</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bevan&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
   <style>
     /* ── TOKENS ─────────────────────────────────────────────── */
     :root {
-      --primary:       #3DA3ED;
-      --primary-dark:  #2E8BD6;
-      --primary-light: #EAF4FD;
-      --green:         #58CC02;
-      --green-dark:    #46A302;
-      --green-light:   #F0FAE6;
-      --purple:        #8549BA;
-      --purple-light:  #F3E9FF;
-      --blue:          #1CB0F6;
-      --blue-light:    #E3F6FE;
-      --yellow:        #FFB020;
-      --yellow-light:  #FFF8E6;
-      --red:           #FF4B4B;
-      --bg:            #FFFFFF;
-      --bg-soft:       #F5F7F8;
-      --text:          #333333;
-      --text-mid:      #6A7C84;
-      --text-muted:    #6A7C84;
-      --border:        #C2C6C6;
-      --radius-lg:     12px;
-      --radius-md:     10px;
-      --radius-sm:     8px;
-      --font:          'Inter', sans-serif;
-      --font-heading:  'Bevan', serif;
+      --green:        #58CC02;
+      --green-dark:   #46A302;
+      --green-border: #3D8A00;
+      --green-light:  #F0FAE6;
+      --purple:       #8549BA;
+      --purple-light: #F3E9FF;
+      --blue:         #1CB0F6;
+      --blue-light:   #E3F6FE;
+      --yellow:       #FFB020;
+      --yellow-light: #FFF8E6;
+      --red:          #FF4B4B;
+      --bg:           #FFFFFF;
+      --bg-soft:      #F7FBF2;
+      --text:         #1A1A1A;
+      --text-mid:     #4B4B4B;
+      --text-muted:   #7A7A7A;
+      --border:       #D8D8D8;
+      --radius-lg:    12px;
+      --radius-md:    10px;
+      --radius-sm:    8px;
+      --font:         'Nunito', sans-serif;
     }
 
     /* ── RESET ──────────────────────────────────────────────── */
@@ -77,7 +74,7 @@
     .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.14); filter: brightness(1.04); }
     .btn:active { transform: translateY(0px); box-shadow: 0 1px 4px rgba(0,0,0,0.08); filter: brightness(0.97); }
 
-    .btn-green  { background: var(--primary); color: #fff; border-color: var(--primary-dark); }
+    .btn-green  { background: var(--green);  color: #fff; border-color: var(--green-dark); }
     .btn-white  { background: #fff; color: var(--text); border-color: rgba(0,0,0,0.12); }
     .btn-yellow { background: var(--yellow); color: #fff; border-color: #d48c00; }
 
@@ -103,7 +100,7 @@
       letter-spacing: 0.2px;
       border: 2px solid;
     }
-    .badge-green  { background: var(--primary-light); color: #1B5E8F;    border-color: var(--primary); }
+    .badge-green  { background: var(--green-light);  color: #2A6200;    border-color: var(--green); }
     .badge-yellow { background: var(--yellow-light); color: #7A4D00;    border-color: var(--yellow); }
     .badge-purple { background: var(--purple-light); color: var(--purple); border-color: var(--purple); }
 
@@ -161,11 +158,11 @@
       position: fixed;
       top: 0; left: 0; right: 0;
       z-index: 200;
-      background: rgba(51,51,51,0.97);
+      background: rgba(255,255,255,.95);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 1px 8px rgba(0,0,0,0.20);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
       padding: 12px 24px;
       display: flex;
       align-items: center;
@@ -238,15 +235,14 @@
     }
 
     .hero-h1 {
-      font-family: var(--font-heading);
-      font-size: clamp(34px, 5vw, 58px);
-      font-weight: 400;
-      line-height: 1.15;
+      font-size: clamp(38px, 5.5vw, 64px);
+      font-weight: 900;
+      line-height: 1.1;
       margin-bottom: 20px;
-      letter-spacing: 0;
+      letter-spacing: -0.5px;
     }
     .hero-h1 .hl {
-      color: var(--primary);
+      color: var(--green);
       position: relative;
       display: inline-block;
     }
@@ -255,7 +251,7 @@
       position: absolute;
       bottom: 2px; left: 0; right: 0;
       height: 8px;
-      background: var(--primary);
+      background: var(--green);
       opacity: .2;
       border-radius: 4px;
     }
@@ -293,7 +289,7 @@
       line-height: 1;
       color: var(--text);
     }
-    .cd-num.green { color: var(--primary); }
+    .cd-num.green { color: var(--green); }
     .cd-label {
       font-size: 11px;
       font-weight: 800;
@@ -331,9 +327,8 @@
     }
 
     .form-heading {
-      font-family: var(--font-heading);
       font-size: 22px;
-      font-weight: 400;
+      font-weight: 900;
       margin-bottom: 4px;
     }
     .form-sub {
@@ -342,7 +337,7 @@
       color: var(--text-muted);
       margin-bottom: 24px;
     }
-    .form-sub strong { color: var(--primary); }
+    .form-sub strong { color: var(--green); }
 
     .field { margin-bottom: 14px; }
     .field label {
@@ -365,8 +360,8 @@
       transition: border-color 200ms ease, box-shadow 200ms ease;
     }
     .field input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px #3DA3ED25;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px #58CC0225;
     }
     .field input::placeholder { color: #BDBDBD; }
     .field input.error { border-color: var(--red); }
@@ -378,7 +373,7 @@
       text-align: center;
       margin-top: 12px;
     }
-    .form-disclaimer strong { color: var(--primary); }
+    .form-disclaimer strong { color: var(--green); }
 
     /* Form success state */
     .form-success {
@@ -394,19 +389,19 @@
 
     .success-ring {
       width: 76px; height: 76px;
-      background: var(--primary);
+      background: var(--green);
       border: none;
       border-radius: 50%;
-      box-shadow: 0 4px 20px rgba(61,163,237,0.35);
+      box-shadow: 0 4px 20px rgba(88,204,2,0.35);
       display: flex;
       align-items: center;
       justify-content: center;
       animation: wiggle .5s ease .2s both;
     }
-    .success-title { font-family: var(--font-heading); font-size: 22px; font-weight: 400; }
+    .success-title { font-size: 22px; font-weight: 900; }
     .success-body  { font-size: 15px; font-weight: 600; color: var(--text-mid); line-height: 1.6; max-width: 280px; }
     .success-num   { font-size: 13px; font-weight: 800; color: var(--text-muted); }
-    .success-num strong { color: var(--primary); }
+    .success-num strong { color: var(--green); }
 
     /* ── HERO ILLUSTRATION ───────────────────────────────────── */
     .hero-visual {
@@ -483,7 +478,7 @@
       font-weight: 900;
       color: var(--text);
     }
-    .trust-num .accent { color: var(--primary); }
+    .trust-num .accent { color: var(--green); }
     .trust-label {
       font-size: 13px;
       font-weight: 700;
@@ -503,10 +498,9 @@
     }
     .sec-badge { margin-bottom: 16px; }
     .sec-title {
-      font-family: var(--font-heading);
-      font-size: clamp(26px, 3.5vw, 40px);
-      font-weight: 400;
-      line-height: 1.2;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 900;
+      line-height: 1.15;
       margin-bottom: 14px;
     }
     .sec-sub {
@@ -547,7 +541,7 @@
       justify-content: center;
       margin-bottom: 20px;
     }
-    .icon-green  { background: var(--primary-light); }
+    .icon-green  { background: var(--green-light); }
     .icon-purple { background: var(--purple-light); }
     .icon-blue   { background: var(--blue-light); }
     .icon-yellow { background: var(--yellow-light); }
@@ -561,11 +555,11 @@
       letter-spacing: .5px;
       margin-bottom: 10px;
     }
-    .pill-green  { background: var(--primary); color: #fff; }
+    .pill-green  { background: var(--green);  color: #fff; }
     .pill-purple { background: var(--purple); color: #fff; }
     .pill-blue   { background: var(--blue);   color: #fff; }
 
-    .feat-title { font-family: var(--font-heading); font-size: 18px; font-weight: 400; margin-bottom: 10px; }
+    .feat-title { font-size: 20px; font-weight: 900; margin-bottom: 10px; }
     .feat-body  { font-size: 15px; font-weight: 600; color: var(--text-mid); line-height: 1.6; }
 
     /* ── SHARE ───────────────────────────────────────────────── */
@@ -596,7 +590,7 @@
       justify-content: center;
       margin: 0 auto 20px;
     }
-    .share-h3 { font-family: var(--font-heading); font-size: 24px; font-weight: 400; margin-bottom: 10px; }
+    .share-h3 { font-size: 26px; font-weight: 900; margin-bottom: 10px; }
     .share-p  { font-size: 16px; font-weight: 600; color: var(--text-mid); line-height: 1.6; margin-bottom: 28px; max-width: 440px; margin-left: auto; margin-right: auto; }
 
     .incentive-pill {
@@ -643,7 +637,7 @@
     /* ── FINAL CTA ───────────────────────────────────────────── */
     .final-cta {
       padding: 100px 24px;
-      background: #333333;
+      background: var(--green);
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -660,9 +654,8 @@
     }
     .final-cta-inner { position: relative; z-index: 1; }
     .final-h2 {
-      font-family: var(--font-heading);
-      font-size: clamp(28px, 4.5vw, 50px);
-      font-weight: 400;
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 900;
       color: #fff;
       margin-bottom: 14px;
     }
@@ -727,14 +720,14 @@
       color: #666;
       transition: color 200ms ease;
     }
-    .footer-links a:hover { color: var(--primary); }
+    .footer-links a:hover { color: var(--green); }
     footer p {
       font-size: 13px;
       color: #444;
       font-weight: 600;
       line-height: 1.6;
     }
-    footer p strong { color: var(--primary); }
+    footer p strong { color: var(--green); }
 
     /* ── SCROLL REVEAL ───────────────────────────────────────── */
     .reveal {
@@ -820,7 +813,7 @@
 ════════════════════════════════════════════════════════════ -->
 <nav class="navbar" role="navigation" aria-label="Main navigation">
   <a href="#top" class="nav-logo" aria-label="SchoolHub home">
-    <img src="icon-dark.svg" alt="SchoolHub" height="36" width="84" draggable="false">
+    <img src="icon-light.svg" alt="SchoolHub" height="36" width="84" draggable="false">
   </a>
   <div class="nav-right">
     <a href="#waitlist" class="btn btn-green" aria-label="Join the SchoolHub waitlist">Join Waitlist</a>
@@ -969,8 +962,8 @@
 
         <!-- Book (top right) -->
         <g transform="translate(212, 48)" class="float-2">
-          <rect x="0" y="0" width="46" height="37" rx="7" fill="#3DA3ED" stroke="#333333" stroke-width="2.5"/>
-          <rect x="0" y="0" width="9"  height="37" rx="4" fill="#2E8BD6"/>
+          <rect x="0" y="0" width="46" height="37" rx="7" fill="#58CC02" stroke="#1A1A1A" stroke-width="2.5"/>
+          <rect x="0" y="0" width="9"  height="37" rx="4" fill="#46A302"/>
           <line x1="15" y1="11" x2="38" y2="11" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
           <line x1="15" y1="19" x2="38" y2="19" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
           <line x1="15" y1="27" x2="30" y2="27" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
@@ -1045,7 +1038,7 @@
 
       <div class="feat-card reveal" tabindex="0">
         <div class="feat-icon icon-green" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3DA3ED" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 1 0 0 16A8 8 0 0 0 12 2z"/><path d="M12 6v6l4 2"/><path d="M2 12h2M20 12h2M12 2v2M12 20v2"/></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#46A302" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 1 0 0 16A8 8 0 0 0 12 2z"/><path d="M12 6v6l4 2"/><path d="M2 12h2M20 12h2M12 2v2M12 20v2"/></svg>
         </div>
         <span class="feat-pill pill-green">AI-POWERED</span>
         <h3 class="feat-title">Adaptive scheduling that actually learns</h3>

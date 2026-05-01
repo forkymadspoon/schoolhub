@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "wcag-accessibility-audit": {
+      "source": "mastepanoski/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/wcag-accessibility-audit/SKILL.md",
+      "computedHash": "dbf9f85d025630e0ecf0a9e37f08639b5c759ea1662b48dd9b1001b720050c02"
+    }
+  }
+}

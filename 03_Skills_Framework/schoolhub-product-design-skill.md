@@ -79,7 +79,17 @@ First bite: single task on screen, timer visible
 | Lower Primary (P1–P3) | 7–9 | Guided visual | Auto (P1–P2) | 56×56 px | FK ≤ 3 | Image + short text; pinyin toggle |
 | Upper Primary (P4–P6) | 10–12 | Transitional | Opt-in | 44×44 px | FK ≤ 6 | Text + multi-choice; scaffolded open |
 
-Grade-band shifts component variants (`TierCard`, `TierFeedback`, `TierProgress`), bite duration defaults, and Claude tone calibration.
+Grade-band shifts component variants (`TierCard`, `TierFeedback`, `TierProgress`), bite duration defaults, and Claude tone calibration. SEN overlay (`SENOverlay`) wraps on top — never replaces the grade-band variant.
+
+### Chinese language — grade-band notes
+
+| Band | Chinese UX |
+|------|-----------|
+| K2 | Character recognition, pinyin intro, oral readiness bites. TTS auto. |
+| P1–P2 | Pinyin toggle on by default. Vocabulary bite: character → pinyin → meaning → example sentence. |
+| P3–P6 | Pinyin toggle off by default. Full MOE scope: reading, writing, composition, comprehension. |
+
+Font stack for Chinese: `Noto Sans SC` (body), `Noto Sans Mono SC` at 0.8em superscript for pinyin overlay.
 
 ## SEN Overlays
 
@@ -87,11 +97,12 @@ Applied as a wrapper on top of the grade-band variant — never replaces the gra
 
 ### ADHD overlay
 
-- Bite duration hard-capped at 5 min (timer visible).
-- Focus Mode: single task visible at a time; side nav collapsed.
+- Bite duration hard-capped at **5 min** (PRD range: 3–5 min; enforce upper bound; timer always visible).
+- Focus Mode: single task visible at a time; side nav collapsed; use `FocusMode.tsx`.
 - Reduced visual clutter: muted background, no animated accents.
-- Positive reinforcement on every bite completion.
-- Frequent micro-break cues ("Stretch for 60 s").
+- Positive reinforcement on every bite completion (ABA principle).
+- Frequent micro-break cues ("Stretch for 60 s") between bites.
+- High-frequency reminder alerts available in notification settings.
 - Leaderboard hidden by default.
 
 ### Autism Spectrum overlay
@@ -107,9 +118,58 @@ Applied as a wrapper on top of the grade-band variant — never replaces the gra
 
 - Adaptive difficulty (Vygotsky ZPD): scaffolded hints before answers.
 - Extended response time on quizzes (double default).
+- No leaderboard visibility by default.
 - Parent notified of frustration signals (3+ incorrect in a row).
 
 All overlays include a subtle **"SEN profile active"** indicator for parents in settings — never shown to the student.
+
+### SENOverlay component
+
+`SENOverlay` (`packages/ui/SENOverlay.tsx`) wraps any child component with `sen_profile` context. Apply at the page level — not per-bite.
+
+```tsx
+<SENOverlay senProfile={child.sen_profile}>
+  {children}
+</SENOverlay>
+```
+
+Behaviour table:
+
+| `sen_profile` | Motion | Bite cap | Leaderboard | Surprise changes |
+|---|---|---|---|---|
+| `ADHD` | Reduced | ≤ 5 min | Hidden | Allowed |
+| `Autism_Spectrum` | Zeroed | Grade default | Hidden | 48h notice |
+| `Other_SEN` | Reduced | Grade default | Hidden | Allowed |
+| `null` | Default | Grade default | Opt-in | Allowed |
+
+### Wellbeing signal thresholds — SEN adjusted
+
+SEN children use tightened thresholds (see PRD §7.4):
+
+| Signal | Standard trigger | SEN adjusted trigger |
+|---|---|---|
+| Overload risk | > 2× weekly hours | > 1.5× weekly hours |
+| Burnout risk | Streak drops 3 days | Streak drops 2 days |
+| Activity imbalance | 7 consecutive days | 5 consecutive days |
+
+## Feature Gate — Design Components
+
+Components or UI elements that are tier-gated must check the child's active plan before rendering.
+
+| Feature / Component | Free (trial) | Scholar | Scholar Pro |
+|---|:---:|:---:|:---:|
+| `ExamCountdownWidget` | ✓ | ✓ | ✓ |
+| `StreakBanner` | — | ✓ | ✓ |
+| Badges + XP | — | ✓ | ✓ |
+| Shareable progress card | — | ✓ | ✓ |
+| Dark mode | — | ✓ | ✓ |
+| `SENProfilePicker` (1 child) | — | ✓ | ✓ |
+| `SENProfilePicker` (all children) | — | — | ✓ |
+| `WellbeingPanel` | — | — | ✓ |
+| Offline PWA cached bites | — | — | ✓ |
+| Child slots | 1 | 2 | 4 |
+
+Gate pattern: wrap gated components in a `<TierGate minTier="scholar">` wrapper that renders an upgrade prompt when the active plan is below `minTier`.
 
 ## Design System
 
@@ -135,6 +195,9 @@ All overlays include a subtle **"SEN profile active"** indicator for parents in 
 /* Dark mode — Scholar+ */
 --color-surface-dark:       #0F172A
 --color-surface-soft-dark:  #1E293B
+--color-neutral-900-dark:   #F9FAFB
+--color-neutral-600-dark:   #94A3B8
+--color-neutral-200-dark:   #334155
 ```
 
 ### Typography
@@ -365,7 +428,7 @@ Child profile switcher is always in the top nav (Scholar: 2, Scholar Pro: 4).
 - Keyboard reachable; visible focus ring (blue, 2 px)
 - Form labels always visible; no placeholder-only labels
 - Motion: respect `prefers-reduced-motion`; Autism overlay zeros motion
-- ARIA labels on icon-only buttons; live region for XP/streak updates
+- ARIA labels on icon-only buttons; `aria-live="polite"` region for XP/streak WebSocket updates (`xp.awarded`, `badge.unlocked`, `wellbeing.signal`)
 - Pinyin toggle globally accessible for P1–P2
 - Dark mode contrast re-validated
 - TTS works offline for K2 cached bites
@@ -465,6 +528,7 @@ Swipe gestures: calendar navigation, countdown carousel, badge gallery.
   --color-surface-soft: #1E293B;
   --color-neutral-900: #F9FAFB;
   --color-neutral-600: #94A3B8;
+  --color-neutral-200: #334155;
 }
 ```
 

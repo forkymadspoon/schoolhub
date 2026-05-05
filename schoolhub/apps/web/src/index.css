@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties (mirrors Tailwind tokens for non-Tailwind usage) ── */
+:root {
+  --bg:              #EAF3FA;
+  --surface:         #FFFFFF;
+  --ink:             #111827;
+  --muted:           #6B7280;
+  --line:            #E5E7EB;
+  --primary:         #2563EB;
+  --primary-soft:    #DBEAFE;
+
+  --green:           #7DC242;
+  --green-tint:      #EEF8DF;
+  --yellow:          #F5C842;
+  --yellow-tint:     #FCF4D9;
+  --orange:          #F58A42;
+  --orange-tint:     #FCE5DA;
+
+  --radius-card:     20px;
+  --radius-pill:     999px;
+  --shadow-card:     0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+
+  --duration-fast:   150ms;
+  --duration-normal: 300ms;
+  --duration-slow:   450ms;
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Autism Spectrum overlay — zeros all motion */
+[data-sen="Autism_Spectrum"] {
+  --duration-fast:   0ms;
+  --duration-normal: 0ms;
+  --duration-slow:   0ms;
+}
+
+/* Respect system reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:   0ms;
+    --duration-normal: 0ms;
+    --duration-slow:   0ms;
+  }
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg);
+    color: var(--ink);
+  }
+
+  /* Minimum tap targets: 44px (P4–P6), 56px enforced in onboarding via component classes */
+  button, [role="button"], a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Visible focus ring for keyboard navigation (WCAG 2.1 AA) */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Card */
+  .card {
+    @apply bg-surface rounded-card shadow-card p-5;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply bg-ink text-white font-bold rounded-pill px-6 py-3
+           transition-opacity hover:opacity-90 active:opacity-80
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary / ghost button */
+  .btn-secondary {
+    @apply bg-transparent text-ink font-bold rounded-pill px-6 py-3
+           border border-line transition-colors hover:border-primary/40
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /* Exam countdown chip */
+  .countdown-chip {
+    @apply inline-flex items-center gap-2 bg-surface text-ink text-xs font-bold
+           rounded-pill px-3 py-2 shadow-card;
+  }
+
+  /* Status traffic-light dot */
+  .status-dot {
+    @apply w-2.5 h-2.5 rounded-full flex-shrink-0;
+  }
+  .status-dot-green  { @apply bg-game-green  shadow-[0_0_0_3px_rgba(125,194,66,0.18)]; }
+  .status-dot-yellow { @apply bg-game-yellow shadow-[0_0_0_3px_rgba(245,200,66,0.22)]; }
+  .status-dot-red    { @apply bg-game-orange shadow-[0_0_0_3px_rgba(245,138,66,0.22)]; }
+
+  /* Proficiency row tints */
+  .row-green  { @apply bg-game-green-tint  rounded-2xl; }
+  .row-yellow { @apply bg-game-yellow-tint rounded-2xl; }
+  .row-orange { @apply bg-game-orange-tint rounded-2xl; }
+}

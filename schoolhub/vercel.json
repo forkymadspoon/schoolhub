@@ -1,0 +1,8 @@
+{
+  "buildCommand": "pnpm --filter @schoolhub/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "rewrites": [
+    { "source": "/:path((?!.*\\.).*)", "destination": "/index.html" }
+  ]
+}

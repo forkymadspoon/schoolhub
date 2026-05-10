@@ -4,38 +4,40 @@ const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}', '../../packages/ui/src/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      // ── SchoolHub design tokens (from SchoolHub_MVP_Mockup.html) ─────────
+      // ── SchoolHub design tokens (Lavender theme) ──────────────────────
       colors: {
-        bg: '#EAF3FA',       // page background (mint-blue)
+        bg: '#F0EEFF',       // page background (soft lavender)
         surface: '#FFFFFF',
-        ink: '#111827',
-        muted: '#6B7280',
-        line: '#E5E7EB',     // borders / dividers
+        ink: '#1A1A2E',      // deep navy text
+        muted: '#7A7A9A',    // muted blue-gray
+        line: '#E2DCFF',     // light purple borders
         primary: {
-          DEFAULT: '#2563EB',
-          soft: '#DBEAFE',
+          DEFAULT: '#7C5CFC',  // violet
+          soft: '#EDE9FF',     // pale violet tint
+          dark: '#5A3DCC',     // deep violet (3D button border)
         },
+        accent: '#4F8EF7',     // blue secondary actions
         // Gamification / status traffic light
-        'game-green':        '#7DC242',
-        'game-green-tint':   '#EEF8DF',
-        'game-yellow':       '#F5C842',
-        'game-yellow-tint':  '#FCF4D9',
-        'game-orange':       '#F58A42',
-        'game-orange-tint':  '#FCE5DA',
-        // Wellbeing aliases (map to same hex for semantic clarity)
-        'wb-green':          '#7DC242',
-        'wb-amber':          '#F5C842',
-        'wb-red':            '#F58A42',
+        'game-green':        '#22C55E',
+        'game-green-tint':   '#DCFCE7',
+        'game-yellow':       '#F59E0B',
+        'game-yellow-tint':  '#FEF3C7',
+        'game-orange':       '#EF4444',
+        'game-orange-tint':  '#FEE2E2',
+        // Wellbeing aliases
+        'wb-green':          '#22C55E',
+        'wb-amber':          '#F59E0B',
+        'wb-red':            '#EF4444',
       },
       borderRadius: {
-        card: '20px',
+        card: '16px',
         pill: '999px',
       },
       boxShadow: {
-        card: '0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04)',
+        card: '0 4px 16px rgba(124,92,252,0.10)',
       },
       fontFamily: {
-        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'],
+        sans: ['Nunito', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         'display': ['48px', { lineHeight: '1.1', fontWeight: '800' }],
@@ -43,8 +45,7 @@ const config: Config = {
       },
       // Responsive breakpoints: mobile-first
       screens: {
-        // defaults: sm=640, md=768, lg=1024, xl=1280
-        // Override to match design spec
+        md: '768px',         // sidebar breakpoint
         tablet: '641px',
         desktop: '1025px',
       },
@@ -52,7 +53,6 @@ const config: Config = {
         'safe-bottom': 'env(safe-area-inset-bottom)',
       },
       transitionDuration: {
-        // Profile-switch budget: 300ms
         fast: '150ms',
         normal: '300ms',
         slow: '450ms',

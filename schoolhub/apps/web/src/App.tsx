@@ -4,6 +4,14 @@ import { Onboarding } from './pages/Onboarding';
 import { ParentDashboard } from './pages/ParentDashboard';
 import { StudentHome } from './pages/StudentHome';
 
+function AlphaBanner() {
+  return (
+    <div className="w-full bg-primary px-4 py-1.5 text-center text-xs text-white/80 tracking-wide">
+      Alpha — schedules are illustrative
+    </div>
+  );
+}
+
 export function App() {
   const { session, loading } = useAuth();
 
@@ -17,10 +25,11 @@ export function App() {
 
   return (
     <BrowserRouter>
+      <AlphaBanner />
       <Routes>
         <Route
           path="/onboarding/*"
-          element={!session ? <Onboarding /> : <Navigate to="/" replace />}
+          element={<Onboarding />}
         />
         <Route
           path="/student/*"

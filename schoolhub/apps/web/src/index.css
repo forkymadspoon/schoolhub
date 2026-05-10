@@ -4,24 +4,26 @@
 
 /* ── CSS custom properties (mirrors Tailwind tokens for non-Tailwind usage) ── */
 :root {
-  --bg:              #EAF3FA;
+  --bg:              #F0EEFF;
   --surface:         #FFFFFF;
-  --ink:             #111827;
-  --muted:           #6B7280;
-  --line:            #E5E7EB;
-  --primary:         #2563EB;
-  --primary-soft:    #DBEAFE;
+  --ink:             #1A1A2E;
+  --muted:           #7A7A9A;
+  --line:            #E2DCFF;
+  --primary:         #7C5CFC;
+  --primary-soft:    #EDE9FF;
+  --primary-dark:    #5A3DCC;
+  --accent:          #4F8EF7;
 
-  --green:           #7DC242;
-  --green-tint:      #EEF8DF;
-  --yellow:          #F5C842;
-  --yellow-tint:     #FCF4D9;
-  --orange:          #F58A42;
-  --orange-tint:     #FCE5DA;
+  --green:           #22C55E;
+  --green-tint:      #DCFCE7;
+  --yellow:          #F59E0B;
+  --yellow-tint:     #FEF3C7;
+  --orange:          #EF4444;
+  --orange-tint:     #FEE2E2;
 
-  --radius-card:     20px;
+  --radius-card:     16px;
   --radius-pill:     999px;
-  --shadow-card:     0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04);
+  --shadow-card:     0 4px 16px rgba(124,92,252,0.10);
 
   --duration-fast:   150ms;
   --duration-normal: 300ms;
@@ -47,7 +49,7 @@
 
 @layer base {
   html {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: var(--bg);
@@ -72,38 +74,60 @@
   /* Card */
   .card {
     @apply bg-surface rounded-card shadow-card p-5;
+    border: 1px solid #E2DCFF;
   }
 
-  /* Primary button */
+  /* Primary button — violet 3D pill */
   .btn-primary {
-    @apply bg-ink text-white font-bold rounded-pill px-6 py-3
-           transition-opacity hover:opacity-90 active:opacity-80
+    @apply bg-primary text-white font-extrabold rounded-pill px-6 py-3
+           shadow-[0_2px_8px_rgba(124,92,252,0.25)] transition-all duration-200
            disabled:opacity-40 disabled:cursor-not-allowed;
+    border: 1.5px solid #5A3DCC;
+    border-bottom: 4px solid #5A3DCC;
+  }
+  .btn-primary:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124,92,252,0.30);
+  }
+  .btn-primary:not(:disabled):active {
+    transform: translateY(1px);
+    border-bottom-width: 2px;
   }
 
-  /* Secondary / ghost button */
+  /* Secondary / ghost button — white pill with purple border */
   .btn-secondary {
-    @apply bg-transparent text-ink font-bold rounded-pill px-6 py-3
-           border border-line transition-colors hover:border-primary/40
+    @apply bg-white text-ink font-extrabold rounded-pill px-6 py-3
+           shadow-[0_2px_8px_rgba(0,0,0,0.06)] transition-all duration-200
            disabled:opacity-40 disabled:cursor-not-allowed;
+    border: 1.5px solid #E2DCFF;
+    border-bottom: 3px solid #E2DCFF;
+  }
+  .btn-secondary:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(124,92,252,0.12);
+  }
+  .btn-secondary:not(:disabled):active {
+    transform: translateY(0);
+    border-bottom-width: 1.5px;
   }
 
   /* Exam countdown chip */
   .countdown-chip {
     @apply inline-flex items-center gap-2 bg-surface text-ink text-xs font-bold
            rounded-pill px-3 py-2 shadow-card;
+    border: 1px solid #E2DCFF;
   }
 
   /* Status traffic-light dot */
   .status-dot {
     @apply w-2.5 h-2.5 rounded-full flex-shrink-0;
   }
-  .status-dot-green  { @apply bg-game-green  shadow-[0_0_0_3px_rgba(125,194,66,0.18)]; }
-  .status-dot-yellow { @apply bg-game-yellow shadow-[0_0_0_3px_rgba(245,200,66,0.22)]; }
-  .status-dot-red    { @apply bg-game-orange shadow-[0_0_0_3px_rgba(245,138,66,0.22)]; }
+  .status-dot-green  { @apply bg-game-green  shadow-[0_0_0_3px_rgba(34,197,94,0.20)]; }
+  .status-dot-yellow { @apply bg-game-yellow shadow-[0_0_0_3px_rgba(245,158,11,0.22)]; }
+  .status-dot-red    { @apply bg-game-orange shadow-[0_0_0_3px_rgba(239,68,68,0.22)]; }
 
   /* Proficiency row tints */
-  .row-green  { @apply bg-game-green-tint  rounded-2xl; }
-  .row-yellow { @apply bg-game-yellow-tint rounded-2xl; }
-  .row-orange { @apply bg-game-orange-tint rounded-2xl; }
+  .row-green  { @apply bg-game-green-tint  rounded-xl; }
+  .row-yellow { @apply bg-game-yellow-tint rounded-xl; }
+  .row-orange { @apply bg-game-orange-tint rounded-xl; }
 }

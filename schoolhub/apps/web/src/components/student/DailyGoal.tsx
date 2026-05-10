@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Bite, SENProfile } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { subscribeToChildEvents } from '../../services/realtime';
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export function DailyGoal({ childId, senProfile }: Props) {
+  const navigate = useNavigate();
   const [data, setData] = useState<TodayResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<TodayBiteRow | null>(null);
@@ -74,14 +76,25 @@ export function DailyGoal({ childId, senProfile }: Props) {
 
   return (
     <div className="min-h-screen bg-bg">
-      <header className="bg-surface border-b border-line px-4 py-3 flex items-center justify-between">
-        <h1 className="text-ink font-semibold text-sm">Today's plan</h1>
-        {totalXp > 0 && (
-          <span className="text-primary font-bold text-xs">{totalXp} XP</span>
+      <header className="bg-surface border-b border-line px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-10">
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="md:hidden text-muted text-sm hover:text-ink flex items-center gap-1"
+        >
+          ← Dashboard
+        </button>
+        <h1 className="text-ink font-semibold text-sm md:text-base">Today's plan</h1>
+        {totalXp > 0 ? (
+          <span className="bg-primary-soft text-primary font-bold text-xs px-3 py-1 rounded-pill">
+            +{totalXp} XP
+          </span>
+        ) : (
+          <span className="w-20 md:hidden" />
         )}
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-5">
+      <main className="px-4 md:px-8 py-6 pb-24 md:pb-8 flex flex-col gap-5 max-w-4xl">
         <StreakBanner streakDays={data?.streak_days ?? 0} />
 
         {loading ? (

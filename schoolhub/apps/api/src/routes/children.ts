@@ -37,7 +37,14 @@ router.get('/:id', async (req, res, next) => {
 // POST /api/children
 router.post('/', async (req, res, next) => {
   try {
-    const userId = (req as typeof req & { userId: string }).userId;
+    const { userId, userEmail } = req as typeof req & { userId: string; userEmail: string };
+    // Ensure public.users row exists (auth.users → public.users sync)
+    const { error: upsertErr } = await supabaseAdmin.from('users').upsert(
+      { id: userId, email: userEmail, role: 'parent' },
+      { onConflict: 'id', ignoreDuplicates: true }
+    );
+    if (upsertErr) throw new Error(`User sync failed: ${upsertErr.message}`);
+
     const { name, grade_level, sen_profile = null, gamification_enabled = true } = req.body as {
       name: string;
       grade_level: GradeLevel;

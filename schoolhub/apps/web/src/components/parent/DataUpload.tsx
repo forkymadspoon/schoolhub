@@ -3,6 +3,35 @@ import type { UploadFileType, Upload, UploadError } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { supabase } from '../../services/supabase';
 
+async function uploadFileToApi(
+  file: File,
+  fileType: UploadFileType,
+  childId?: string,
+): Promise<Upload> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+
+  const form = new FormData();
+  form.append('file', file);
+  form.append('file_type', fileType);
+  if (childId) form.append('child_id', childId);
+
+  const res = await fetch('/api/uploads', {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    throw new Error((body.error as string | undefined) ?? res.statusText);
+  }
+
+  const body = await res.json() as Record<string, unknown>;
+  // API returns { upload_id, status, file_type } — normalise to { id, ... }
+  return { ...body, id: body.upload_id ?? body.id } as unknown as Upload;
+}
+
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -14,7 +43,8 @@ interface Props {
 type UploadPhase = 'idle' | 'uploading' | 'parsing' | 'done' | 'error' | 'correction';
 
 interface LocalUpload {
-  id: string;
+  localId: string;   // stable React key — never changes
+  id: string;        // DB upload id — set after API responds
   filename: string;
   fileType: UploadFileType;
   phase: UploadPhase;
@@ -150,7 +180,7 @@ function UploadRow({
 
       {item.phase === 'correction' && item.error && (
         <div className="ml-4">
-          <CorrectionForm uploadError={item.error} onFixed={() => onDismissError(item.id)} />
+          <CorrectionForm uploadError={item.error} onFixed={() => onDismissError(item.localId)} />
         </div>
       )}
     </div>
@@ -164,8 +194,8 @@ export function DataUpload({ childId, allowedTypes = ALL_TYPES, onComplete }: Pr
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  function updateUpload(id: string, patch: Partial<LocalUpload>) {
-    setUploads(prev => prev.map(u => (u.id === id ? { ...u, ...patch } : u)));
+  function updateUpload(localId: string, patch: Partial<LocalUpload>) {
+    setUploads(prev => prev.map(u => (u.localId === localId ? { ...u, ...patch } : u)));
   }
 
   const processFile = useCallback(
@@ -175,6 +205,7 @@ export function DataUpload({ childId, allowedTypes = ALL_TYPES, onComplete }: Pr
 
       const localId = crypto.randomUUID();
       const localItem: LocalUpload = {
+        localId,
         id: localId,
         filename: file.name,
         fileType,
@@ -185,20 +216,8 @@ export function DataUpload({ childId, allowedTypes = ALL_TYPES, onComplete }: Pr
       setUploads(prev => [...prev, localItem]);
 
       try {
-        // Upload to Supabase Storage
-        const storagePath = `uploads/${Date.now()}-${file.name}`;
-        const { error: storageError } = await supabase.storage
-          .from('schoolhub-uploads')
-          .upload(storagePath, file);
-        if (storageError) throw new Error(storageError.message);
-
-        // Create upload record via API
-        const created = await api.post<Upload>('/uploads', {
-          child_id: childId ?? null,
-          file_type: fileType,
-          original_filename: file.name,
-          storage_path: storagePath,
-        });
+        // Send file directly to API (multipart); API handles storage + DB + parsing
+        const created = await uploadFileToApi(file, fileType, childId);
 
         updateUpload(localId, { id: created.id, phase: 'parsing' });
 
@@ -280,11 +299,11 @@ export function DataUpload({ childId, allowedTypes = ALL_TYPES, onComplete }: Pr
         <div className="space-y-2">
           {uploads.map(u => (
             <UploadRow
-              key={u.id}
+              key={u.localId}
               item={u}
-              onDismissError={id =>
+              onDismissError={localId =>
                 setUploads(prev =>
-                  prev.map(x => (x.id === id ? { ...x, phase: 'done', error: null } : x)),
+                  prev.map(x => (x.localId === localId ? { ...x, phase: 'done', error: null } : x)),
                 )
               }
             />

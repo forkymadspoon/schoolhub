@@ -40,8 +40,10 @@ Grade band: ${ctx.gradeBand}${senClause}
 Weekly study budget: ${ctx.weeklyStudyMinutes} minutes.
 Bite duration: ${ctx.senProfile === 'ADHD' ? '1–5' : '5–10'} minutes.
 
+Generate exactly 8 weeks of bites (weeks 1–8). Do not exceed 8 weeks total.
+Keep each week's bites concise — max 14 bites per week.
 Apply spaced repetition: revisit topics after 3 days, 7 days, and 14 days.
-Leave buffer_weeks ≥ 2 before any exam date.
+Leave buffer_weeks ≥ 1 before any exam date within the 8-week window.
 Mark exam dates as review-only weeks (no new topics).
 Do NOT schedule bites on holiday_days.
 

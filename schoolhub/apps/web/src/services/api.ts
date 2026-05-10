@@ -21,8 +21,10 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   });
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error((err as { message: string }).message ?? res.statusText);
+    const err = await res.json().catch(() => ({})) as Record<string, unknown>;
+    throw new Error(
+      (err.error as string | undefined) ?? (err.message as string | undefined) ?? res.statusText
+    );
   }
 
   return res.json() as Promise<T>;

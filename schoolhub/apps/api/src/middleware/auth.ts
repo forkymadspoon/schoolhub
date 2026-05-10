@@ -19,6 +19,8 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
     return;
   }
 
-  (req as Request & { userId: string }).userId = data.user.id;
+  const r = req as Request & { userId: string; userEmail: string };
+  r.userId = data.user.id;
+  r.userEmail = data.user.email ?? '';
   next();
 }

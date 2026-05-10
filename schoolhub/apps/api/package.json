@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "../../node_modules/.bin/tsx watch src/index.ts",
+    "dev": "../../node_modules/.bin/tsx watch --env-file=../../.env src/index.ts",
     "build": "../../node_modules/.bin/tsc",
     "start": "tsx src/index.ts",
     "typecheck": "../../node_modules/.bin/tsc --noEmit",

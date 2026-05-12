@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import { authMiddleware } from './middleware/auth.js';
@@ -40,6 +41,14 @@ app.use('/api/reports',        authMiddleware, reportsRouter);
 app.use('/api/internal',       internalRouter);
 
 app.use(errorMiddleware);
+
+// Serve landing page static assets
+app.use(express.static(path.join(process.cwd(), '../../landing')));
+
+// Catch-all: serve landing page index.html for root navigation
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(process.cwd(), '../../landing/index.html'));
+});
 
 app.listen(PORT, () => {
   console.log(`API running on http://localhost:${PORT}`);

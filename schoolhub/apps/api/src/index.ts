@@ -17,7 +17,7 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [process.env.ALLOWED_ORIGIN ?? 'https://schoolhub.app']
+  ? [(process.env.ALLOWED_ORIGIN ?? 'https://schoolhub.app').replace(/\/$/, '')]
   : ['http://localhost:5173', 'http://localhost:5174'];
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '10mb' }));

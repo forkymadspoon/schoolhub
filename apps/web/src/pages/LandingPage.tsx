@@ -80,7 +80,7 @@ export function LandingPage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-bg/90 backdrop-blur-md border-b border-line px-8 flex items-center justify-between gap-6" style={{ minHeight: 60 }}>
         <Link to="/" className="flex items-center gap-2.5 min-h-0 min-w-0">
-          <img src="/icon-light.svg" alt="SchoolHub" height={42} width={42} />
+          <img src="/logo.svg" alt="SchoolHub" height={42} width={42} />
         </Link>
         <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
           {['Features', 'How it works', 'Pricing'].map(label => (
@@ -247,7 +247,7 @@ export function LandingPage() {
       <footer className="bg-ink border-t border-white/[0.07] py-10 px-8">
         <div className="max-w-[1100px] mx-auto flex items-center justify-between flex-wrap gap-5">
           <div className="flex items-center gap-2.5">
-            <img src="/icon-light.svg" alt="" height={24} width={24} aria-hidden style={{ filter: 'brightness(0) invert(1) opacity(0.6)' }} />
+            <img src="/logo.svg" alt="" height={24} width={24} aria-hidden style={{ filter: 'brightness(0) invert(1) opacity(0.6)' }} />
             <span className="text-sm font-extrabold text-white">SchoolHub</span>
           </div>
           <div className="flex gap-6 flex-wrap">

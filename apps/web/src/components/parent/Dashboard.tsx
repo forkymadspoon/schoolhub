@@ -146,7 +146,7 @@ export function Dashboard() {
       {/* ── Mobile header ── */}
       <header className="md:hidden bg-surface border-b border-line px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-2">
-          <img src="/icon-light.svg" alt="SchoolHub" className="h-9 w-9" />
+          <img src="/logo.svg" alt="SchoolHub" className="h-9 w-9" />
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setShowNotifSettings(true)}

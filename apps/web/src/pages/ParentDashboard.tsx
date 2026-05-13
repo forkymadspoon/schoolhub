@@ -34,10 +34,11 @@ function AlphaBanner() {
 
 export function ParentDashboard() {
   return (
-    <div className="flex min-h-screen bg-bg">
+    <div className="flex flex-col min-h-screen bg-bg">
+      <AlphaBanner />
+      <div className="flex flex-1">
       <ParentSidebar />
       <div className="flex-1 flex flex-col min-w-0 md:ml-60">
-        <AlphaBanner />
         <Routes>
           {/* Home has its own header + layout */}
           <Route path="/" element={<Dashboard />} />
@@ -67,6 +68,7 @@ export function ParentDashboard() {
           } />
         </Routes>
         <ParentBottomNav />
+      </div>
       </div>
     </div>
   );

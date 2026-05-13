@@ -72,7 +72,7 @@ export function ParentSidebar({ onUpload, onNotifications }: ParentSidebarProps)
   }, []);
 
   return (
-    <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-60 bg-surface border-r border-line z-30">
+    <aside className="hidden md:flex flex-col fixed left-0 top-7 bottom-0 w-60 bg-surface border-r border-line z-30">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-line">
         <img src="/logo.svg" alt="SchoolHub" className="w-40 h-auto" />

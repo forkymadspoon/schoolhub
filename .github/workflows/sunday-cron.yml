@@ -1,0 +1,34 @@
+name: Sunday Weekly Jobs
+on:
+  schedule:
+    - cron: '0 14 * * 0'  # Sunday 14:00 UTC = 22:00 SGT
+  workflow_dispatch:
+
+jobs:
+  generate-cards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate weekly progress cards
+        run: pnpm --filter @schoolhub/weekly-card start
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+  send-digest:
+    needs: generate-cards
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send weekly Telegram digest
+        run: |
+          curl -sf -X POST "${{ secrets.API_URL }}/api/internal/digest/weekly" \
+            -H "x-internal-key: ${{ secrets.INTERNAL_API_KEY }}"

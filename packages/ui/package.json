@@ -1,0 +1,27 @@
+{
+  "name": "@schoolhub/ui",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "../../node_modules/.bin/tsc --noEmit",
+    "lint": "../../node_modules/.bin/eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@schoolhub/types": "workspace:*",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "typescript": "*"
+  },
+  "peerDependencies": {
+    "react": "^18"
+  }
+}

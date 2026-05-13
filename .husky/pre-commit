@@ -1,0 +1,12 @@
+#!/bin/sh
+# pnpm cannot inject node_modules/.bin into $PATH here (colon in repo path).
+# Invoke binaries by direct path instead.
+MONO="$(cd "$(dirname "$0")/.." && pwd)"
+BIN="$MONO/node_modules/.bin"
+
+"$BIN/tsc" -p "$MONO/packages/types/tsconfig.json" --noEmit &&
+"$BIN/tsc" -p "$MONO/packages/ai/tsconfig.json" --noEmit &&
+"$BIN/tsc" -p "$MONO/packages/parsers/tsconfig.json" --noEmit &&
+"$BIN/tsc" -p "$MONO/apps/api/tsconfig.json" --noEmit &&
+"$BIN/tsc" -p "$MONO/apps/web/tsconfig.json" --noEmit &&
+"$BIN/eslint" "$MONO/packages" "$MONO/apps" --ext .ts,.tsx --max-warnings 0

@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties — Ocean Blue theme (parent-pilot-buddy reference) ─ */
+:root {
+  /* Page & surface */
+  --bg:              #EAF4FB;   /* hsl(204 65% 95%) — sky-blue background */
+  --surface:         #FFFFFF;
+  --ink:             #1F2B3D;   /* hsl(215 32% 18%) — dark navy */
+  --muted:           #607085;   /* hsl(215 16% 45%) — blue-gray */
+  --line:            #D4E3ED;   /* hsl(204 40% 88%) — light blue border */
+
+  /* Primary — teal-blue */
+  --primary:         #198ECC;   /* hsl(201 78% 45%) */
+  --primary-soft:    #D6EBF5;   /* hsl(200 60% 90%) */
+  --primary-dark:    #146E9F;   /* hsl(201 78% 35%) */
+
+  /* Accent */
+  --accent:          #CBF0F6;   /* hsl(188 70% 88%) */
+
+  /* Status / gamification */
+  --green:           #87C83C;   /* hsl(88  56% 51%) */
+  --green-tint:      #EBF7DE;   /* hsl(88  60% 92%) */
+  --yellow:          #F4CC48;   /* hsl(46  89% 62%) */
+  --yellow-tint:     #FDF4D8;   /* hsl(46  90% 92%) */
+  --orange:          #F58142;   /* hsl(21  90% 61%) */
+  --orange-tint:     #FDE5D8;   /* hsl(21  90% 92%) */
+
+  /* Gradients */
+  --gradient-hero:   linear-gradient(135deg, hsl(201 78% 55%), hsl(188 75% 55%));
+  --gradient-streak: linear-gradient(135deg, hsl(46 95% 60%), hsl(21 90% 61%));
+  --gradient-focus:  linear-gradient(160deg, hsl(201 78% 45%), hsl(215 70% 40%));
+
+  /* Layout */
+  --radius-card:     20px;      /* 1.25rem */
+  --radius-pill:     999px;
+
+  /* Shadows — blue-tinted, longer offset */
+  --shadow-card:     0 8px 24px -12px rgba(10, 70, 100, 0.18);
+  --shadow-soft:     0 2px 8px -2px rgba(10, 70, 100, 0.08);
+
+  /* Motion */
+  --duration-fast:   150ms;
+  --duration-normal: 300ms;
+  --duration-slow:   450ms;
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* Autism Spectrum overlay — zeros all motion */
+[data-sen="Autism_Spectrum"] {
+  --duration-fast:   0ms;
+  --duration-normal: 0ms;
+  --duration-slow:   0ms;
+}
+
+/* Respect system reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast:   0ms;
+    --duration-normal: 0ms;
+    --duration-slow:   0ms;
+  }
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg);
+    color: var(--ink);
+  }
+
+  /* Minimum tap targets: 44px (P4–P6), 56px enforced in onboarding via component classes */
+  button, [role="button"], a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Visible focus ring for keyboard navigation (WCAG 2.1 AA) */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Card */
+  .card {
+    @apply bg-surface rounded-card p-5;
+    border: 1px solid #D4E3ED;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Primary button — teal-blue */
+  .btn-primary {
+    @apply bg-primary text-white font-bold rounded-pill px-6 py-3
+           transition-all duration-200
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    border: 1.5px solid #146E9F;
+    border-bottom: 3px solid #146E9F;
+    box-shadow: 0 2px 8px rgba(25, 142, 204, 0.30);
+  }
+  .btn-primary:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(25, 142, 204, 0.38);
+  }
+  .btn-primary:not(:disabled):active {
+    transform: translateY(0);
+    border-bottom-width: 1.5px;
+  }
+
+  /* Secondary / ghost button */
+  .btn-secondary {
+    @apply bg-white text-ink font-semibold rounded-pill px-6 py-3
+           transition-all duration-200
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    border: 1.5px solid #D4E3ED;
+    box-shadow: var(--shadow-soft);
+  }
+  .btn-secondary:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(10, 70, 100, 0.12);
+    border-color: #198ECC;
+  }
+  .btn-secondary:not(:disabled):active {
+    transform: translateY(0);
+  }
+
+  /* Exam countdown chip */
+  .countdown-chip {
+    @apply inline-flex items-center gap-2 bg-surface text-ink text-xs font-bold
+           rounded-pill px-3 py-2;
+    border: 1px solid #D4E3ED;
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Status traffic-light dot */
+  .status-dot {
+    @apply w-2.5 h-2.5 rounded-full flex-shrink-0;
+  }
+  .status-dot-green  { @apply bg-game-green  shadow-[0_0_0_3px_rgba(135,200,60,0.22)]; }
+  .status-dot-yellow { @apply bg-game-yellow shadow-[0_0_0_3px_rgba(244,204,72,0.25)]; }
+  .status-dot-red    { @apply bg-game-orange shadow-[0_0_0_3px_rgba(245,129,66,0.22)]; }
+
+  /* Proficiency row tints */
+  .row-green  { @apply bg-game-green-tint  rounded-xl; }
+  .row-yellow { @apply bg-game-yellow-tint rounded-xl; }
+  .row-orange { @apply bg-game-orange-tint rounded-xl; }
+}
+
+/* ── Landing page scroll reveal ──────────────────────────────────── */
+.lp-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 550ms cubic-bezier(0.16, 1, 0.3, 1), transform 550ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.lp-reveal.lp-in { opacity: 1; transform: none; }
+.lp-d1 { transition-delay:  80ms; }
+.lp-d2 { transition-delay: 160ms; }
+.lp-d3 { transition-delay: 240ms; }
+.lp-d4 { transition-delay: 320ms; }
+.lp-d5 { transition-delay: 400ms; }
+.lp-d6 { transition-delay: 480ms; }

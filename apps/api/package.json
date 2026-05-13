@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "../../node_modules/.bin/tsx watch --env-file=../../.env src/index.ts",
     "build": "../../node_modules/.bin/tsc",
-    "start": "tsx src/index.ts",
+    "start": "tsx --env-file=../../.env src/index.ts",
     "typecheck": "../../node_modules/.bin/tsc --noEmit",
     "lint": "../../node_modules/.bin/eslint src --ext .ts"
   },

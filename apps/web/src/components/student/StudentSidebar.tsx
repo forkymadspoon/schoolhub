@@ -39,8 +39,7 @@ export function StudentSidebar() {
     <aside className="hidden md:flex flex-col fixed left-0 top-0 bottom-0 w-60 bg-surface border-r border-line z-30">
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-5 py-5 border-b border-line">
-        <img src="/icon-light.svg" alt="SchoolHub" className="h-7 w-7" />
-        <span className="font-extrabold text-ink text-base tracking-tight">SchoolHub</span>
+        <img src="/icon-light.svg" alt="SchoolHub" className="h-10 w-10" />
       </div>
 
       {/* Nav items */}

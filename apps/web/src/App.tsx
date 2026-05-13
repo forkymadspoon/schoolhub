@@ -4,6 +4,7 @@ import { Onboarding } from './pages/Onboarding';
 import { ParentDashboard } from './pages/ParentDashboard';
 import { StudentHome } from './pages/StudentHome';
 import { LandingPage } from './pages/LandingPage';
+import { LoginPage } from './pages/LoginPage';
 
 export function App() {
   const { session, loading } = useAuth();
@@ -20,6 +21,10 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/onboarding/*" element={<Onboarding />} />
+        <Route
+          path="/login"
+          element={session ? <Navigate to="/" replace /> : <LoginPage />}
+        />
         <Route
           path="/student/*"
           element={session ? <StudentHome /> : <Navigate to="/" replace />}

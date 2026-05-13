@@ -11,10 +11,10 @@ import { SettingsPage } from '../components/parent/SettingsPage';
 function PageShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   return (
     <>
-      <header className="bg-surface border-b border-line px-4 md:px-8 py-3 sticky top-0 z-10">
+      <header className="bg-surface border-b border-line px-4 md:px-8 sticky top-0 z-10 h-[90px] flex items-center">
         <div className="max-w-4xl">
           <h1 className="text-ink font-bold text-base">{title}</h1>
-          {subtitle && <p className="text-muted text-xs">{subtitle}</p>}
+          {subtitle && <p className="text-muted text-xs mt-0.5">{subtitle}</p>}
         </div>
       </header>
       <main className="px-4 md:px-8 py-5 pb-24 md:pb-8 max-w-4xl">

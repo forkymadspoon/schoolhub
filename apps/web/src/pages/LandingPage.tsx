@@ -80,8 +80,7 @@ export function LandingPage() {
       {/* ── NAV ── */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-bg/90 backdrop-blur-md border-b border-line px-8 flex items-center justify-between gap-6" style={{ minHeight: 60 }}>
         <Link to="/" className="flex items-center gap-2.5 min-h-0 min-w-0">
-          <img src="/icon-light.svg" alt="SchoolHub" height={30} width={30} />
-          <span className="font-extrabold text-ink text-[17px] tracking-tight">SchoolHub</span>
+          <img src="/icon-light.svg" alt="SchoolHub" height={42} width={42} />
         </Link>
         <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
           {['Features', 'How it works', 'Pricing'].map(label => (

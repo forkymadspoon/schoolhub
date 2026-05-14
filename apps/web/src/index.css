@@ -132,7 +132,7 @@
   /* Exam countdown chip — matches PsleChip styling */
   .countdown-chip {
     @apply inline-flex items-center gap-1.5 bg-surface text-ink text-[11px] font-semibold
-           rounded-pill px-3 py-1.5;
+           rounded-pill px-3 py-1.5 min-h-0 min-w-0;
     border: 1px solid #D4E3ED;
     box-shadow: var(--shadow-soft);
   }

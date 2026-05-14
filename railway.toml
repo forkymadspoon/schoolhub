@@ -3,7 +3,7 @@ builder = "NIXPACKS"
 buildCommand = "pnpm install --frozen-lockfile"
 
 [deploy]
-startCommand = "pnpm --filter @schoolhub/api start"
+startCommand = "node_modules/.bin/tsx apps/api/src/index.ts"
 healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "ON_FAILURE"

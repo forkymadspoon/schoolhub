@@ -30,5 +30,6 @@ jobs:
     steps:
       - name: Send weekly Telegram digest
         run: |
-          curl -sf -X POST "${{ secrets.API_URL }}/api/internal/digest/weekly" \
-            -H "x-internal-key: ${{ secrets.INTERNAL_API_KEY }}"
+          curl --fail-with-body -sS -X POST "${{ secrets.API_URL }}/api/internal/digest/weekly" \
+            -H "x-internal-key: ${{ secrets.INTERNAL_API_KEY }}" \
+            -H "Content-Type: application/json"

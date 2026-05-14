@@ -3,6 +3,8 @@ import type { UploadFileType, Upload, UploadError } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { supabase } from '../../services/supabase';
 
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
+
 async function uploadFileToApi(
   file: File,
   fileType: UploadFileType,
@@ -16,7 +18,7 @@ async function uploadFileToApi(
   form.append('file_type', fileType);
   if (childId) form.append('child_id', childId);
 
-  const res = await fetch('/api/uploads', {
+  const res = await fetch(`${API_BASE}/api/uploads`, {
     method: 'POST',
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: form,

@@ -11,5 +11,6 @@ jobs:
     steps:
       - name: Trigger wellbeing evaluation
         run: |
-          curl -sf -X POST "${{ secrets.API_URL }}/api/internal/wellbeing/evaluate" \
-            -H "x-internal-key: ${{ secrets.INTERNAL_API_KEY }}"
+          curl --fail-with-body -sS -X POST "${{ secrets.API_URL }}/api/internal/wellbeing/evaluate" \
+            -H "x-internal-key: ${{ secrets.INTERNAL_API_KEY }}" \
+            -H "Content-Type: application/json"

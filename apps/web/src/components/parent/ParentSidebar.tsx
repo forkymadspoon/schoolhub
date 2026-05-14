@@ -54,12 +54,7 @@ const navItems = [
   },
 ];
 
-interface ParentSidebarProps {
-  onUpload?: () => void;
-  onNotifications?: () => void;
-}
-
-export function ParentSidebar({ onUpload, onNotifications }: ParentSidebarProps) {
+export function ParentSidebar() {
   const navigate = useNavigate();
   const [children, setChildren] = useState<Child[]>([]);
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
@@ -127,34 +122,11 @@ export function ParentSidebar({ onUpload, onNotifications }: ParentSidebarProps)
       </nav>
 
       {/* Bottom actions */}
-      <div className="px-3 py-4 border-t border-line flex flex-col gap-2">
-        <button
-          type="button"
-          onClick={onNotifications}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted hover:bg-primary-soft/50 hover:text-ink transition-colors text-sm font-medium min-h-0"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
-          Notifications
-        </button>
-        <button
-          type="button"
-          onClick={onUpload}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted hover:bg-primary-soft/50 hover:text-ink transition-colors text-sm font-medium min-h-0"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
-          Upload files
-        </button>
+      <div className="px-3 py-4 border-t border-line">
         <button
           type="button"
           onClick={() => navigate('/student')}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted hover:bg-primary-soft/50 hover:text-ink transition-colors text-sm font-medium min-h-0"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-muted hover:bg-primary-soft/50 hover:text-ink transition-colors text-sm font-medium min-h-0 w-full"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />

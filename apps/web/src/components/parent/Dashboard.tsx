@@ -292,7 +292,9 @@ export function Dashboard() {
         <div className="flex flex-col gap-5 px-4 md:px-8 py-5 pb-24 md:pb-8 overflow-y-auto">
 
           {/* Exam countdown */}
-          {childId && <ExamCountdownWidget childId={childId} />}
+          {childId && (
+            <ExamCountdownWidget childId={childId} gradeLevel={activeChild?.grade_level} />
+          )}
 
           {/* Compact hero card */}
           <div className="card flex items-center gap-4 py-4 px-5">

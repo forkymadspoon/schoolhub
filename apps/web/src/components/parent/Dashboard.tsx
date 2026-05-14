@@ -7,6 +7,7 @@ import { useWellbeing } from '../../hooks/useWellbeing';
 import { useStats } from '../../hooks/useStats';
 import { subscribeToChildEvents } from '../../services/realtime';
 import { ExamCountdownWidget } from '../shared/ExamCountdownWidget';
+import { PsleChip } from '../shared/PsleChip';
 import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { WellbeingPanel } from './WellbeingPanel';
 import { NotificationSettings } from './NotificationSettings';
@@ -291,9 +292,12 @@ export function Dashboard() {
         {/* ═══════════ LEFT COLUMN ═══════════ */}
         <div className="flex flex-col gap-5 px-4 md:px-8 py-5 pb-24 md:pb-8 overflow-y-auto">
 
-          {/* Exam countdown */}
-          {childId && (
-            <ExamCountdownWidget childId={childId} gradeLevel={activeChild?.grade_level} />
+          {/* Exam countdown / PSLE context chip */}
+          {activeChild && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <PsleChip gradeLevel={activeChild.grade_level} />
+              <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
+            </div>
           )}
 
           {/* Compact hero card */}

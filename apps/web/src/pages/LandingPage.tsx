@@ -10,6 +10,7 @@ const FEATURES = [
   { num: '04', icon: '🏆', title: 'Gamification That Works',   body: 'Streaks, XP points, and subject badges keep students genuinely motivated. XP awarded live within 2 seconds via WebSocket.', tag: 'Real-time rewards', blue: false },
   { num: '05', icon: '💚', title: 'Wellbeing Guardrails',      body: 'Rule-based mental health monitoring flags overload, burnout, and exam anxiety early. Suggestions only — parent always overrides. Never clinical.', tag: 'Scholar Pro', blue: true },
   { num: '06', icon: '⏱️', title: 'Exam Countdown, Always On', body: 'PSLE, SA1, and SA2 countdowns on every screen, colour-coded green → yellow → red. Upload your school calendar or enter dates manually.', tag: 'Persistent on every screen', blue: false },
+  { num: '07', icon: '📤', title: 'Your Data, Your Way',       body: 'Export everything as JSON — schedules, progress, and badges — then import on any device. Your data, zero lock-in.', tag: 'No lock-in, ever', blue: false },
 ];
 
 const STEPS = [
@@ -156,7 +157,7 @@ export function LandingPage() {
           <div className="text-center mb-14 lp-reveal">
             <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">SEC. ONE — FEATURES</span>
             <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-tight text-ink mb-3">Everything your child needs to excel</h2>
-            <p className="text-[17px] text-muted font-medium leading-[1.65] max-w-[560px] mx-auto">Six core capabilities that work together to build confident, capable learners — without the burnout.</p>
+            <p className="text-[17px] text-muted font-medium leading-[1.65] max-w-[560px] mx-auto">Seven core capabilities that work together to build confident, capable learners — without the burnout.</p>
           </div>
           <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (

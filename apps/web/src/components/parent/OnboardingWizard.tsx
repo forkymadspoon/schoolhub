@@ -1,48 +1,137 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { GradeLevel, SENProfile, Subject } from '@schoolhub/types';
+import { gradeBandForLevel } from '@schoolhub/types';
 import { SENProfilePicker } from './SENProfilePicker';
 import { api } from '../../services/api';
 
-// ─── Types ─────────────────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 interface ExamDate {
   label: string;
-  date: string;   // YYYY-MM-DD
-  subject: Subject | '';
+  date: string;
 }
 
+type WizardScreen = 'welcome' | 'child-info' | 'subjects' | 'study-time' | 'exam-dates' | 'sen' | 'generate';
+
 interface WizardState {
-  // Step 1
   childName: string;
   gradeLevel: GradeLevel | '';
-  // Step 2
   subjects: Subject[];
-  // Step 3
-  examDates: ExamDate[];
-  // Step 4 — handled in DataUpload; wizard just records skip/done
-  calendarSkipped: boolean;
-  // Step 5
   weeklyMinutes: number;
-  // Step 6
+  examDates: ExamDate[];
   senProfile: SENProfile;
 }
 
-const GRADE_OPTIONS: Exclude<GradeLevel, 'K2' | 'P1' | 'P2' | 'P3'>[] = ['P4', 'P5', 'P6'];
-const ALL_SUBJECTS: Subject[] = ['English', 'Mathematics', 'Science'];
-const STEPS = 6;
+// ─── Grade helpers ───────────────────────────────────────────────────────────
 
-// ─── Sub-step components ───────────────────────────────────────────────────
+const ALL_GRADES: GradeLevel[] = ['K2', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 
-function StepNameGrade({
+function subjectsForGrade(grade: GradeLevel): Subject[] {
+  if (grade === 'K2') return ['English', 'Mathematics', 'Chinese'];
+  if (grade === 'P1' || grade === 'P2' || grade === 'P3') return ['English', 'Mathematics', 'Chinese'];
+  return ['English', 'Mathematics', 'Science', 'Chinese'];
+}
+
+function defaultSubjectsForGrade(grade: GradeLevel): Subject[] {
+  if (grade === 'K2') return ['English', 'Mathematics', 'Chinese'];
+  if (grade === 'P1' || grade === 'P2' || grade === 'P3') return ['English', 'Mathematics'];
+  return ['English', 'Mathematics', 'Science'];
+}
+
+function defaultMinutesForGrade(grade: GradeLevel): number {
+  const map: Record<GradeLevel, number> = {
+    K2: 30, P1: 45, P2: 60, P3: 75, P4: 90, P5: 120, P6: 150,
+  };
+  return map[grade];
+}
+
+function sliderConfig(grade: GradeLevel): { min: number; max: number; step: number } {
+  if (grade === 'K2') return { min: 15, max: 90, step: 5 };
+  if (grade === 'P1') return { min: 30, max: 200, step: 15 };
+  if (grade === 'P2') return { min: 30, max: 240, step: 15 };
+  if (grade === 'P3') return { min: 45, max: 300, step: 15 };
+  if (grade === 'P4') return { min: 60, max: 360, step: 15 };
+  if (grade === 'P5') return { min: 60, max: 480, step: 15 };
+  return { min: 90, max: 600, step: 15 };
+}
+
+function formatStudyTime(minutes: number): string {
+  if (minutes < 60) return `${minutes} min/week`;
+  const hrs = minutes / 60;
+  return `${Number.isInteger(hrs) ? hrs : hrs.toFixed(1)} hrs/week`;
+}
+
+function gradeTip(grade: GradeLevel): string {
+  if (grade === 'K2') return 'Recommended: 15–30 min/week of readiness activities.';
+  if (grade === 'P1' || grade === 'P2') return 'Recommended: 45–60 min/week for Lower Primary.';
+  if (grade === 'P3') return 'Recommended: 1–1.5 hrs/week for P3.';
+  if (grade === 'P4') return 'Recommended: 1.5 hrs/week for P4.';
+  if (grade === 'P5') return 'Recommended: 2 hrs/week for P5.';
+  return 'PSLE year: 2.5 hrs/week recommended, with regular revision.';
+}
+
+function subjectDisplayName(s: Subject, isK2: boolean): string {
+  if (!isK2) return s === 'Mathematics' ? 'Mathematics' : s;
+  if (s === 'English') return 'English Foundations';
+  if (s === 'Mathematics') return 'Maths Foundations';
+  return s;
+}
+
+// ─── Screen order ────────────────────────────────────────────────────────────
+
+const NUMBERED_SCREENS: WizardScreen[] = ['child-info', 'subjects', 'study-time', 'exam-dates', 'sen'];
+
+function getScreenOrder(grade: GradeLevel | ''): WizardScreen[] {
+  const screens: WizardScreen[] = ['welcome', 'child-info', 'subjects', 'study-time'];
+  if (grade !== 'K2') screens.push('exam-dates');
+  screens.push('sen', 'generate');
+  return screens;
+}
+
+// ─── Sub-screens ─────────────────────────────────────────────────────────────
+
+function ScreenWelcome({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="text-center space-y-6 py-4">
+      <div className="text-5xl">📚</div>
+      <div>
+        <h1 className="text-2xl font-bold text-ink">Welcome to SchoolHub</h1>
+        <p className="text-sm text-muted mt-2 leading-relaxed">
+          Let's build your child's personalised, MOE-aligned study plan.<br />
+          Takes less than 3 minutes.
+        </p>
+      </div>
+      <div className="flex justify-center gap-4 text-xs text-muted flex-wrap">
+        {['MOE-aligned', 'Grade-adaptive', 'SEN-aware'].map(tag => (
+          <span key={tag} className="flex items-center gap-1">
+            <span className="text-primary font-bold">✓</span> {tag}
+          </span>
+        ))}
+      </div>
+      <button
+        type="button"
+        onClick={onStart}
+        className="btn-primary w-full py-3 text-sm font-semibold"
+      >
+        Let's start →
+      </button>
+    </div>
+  );
+}
+
+function ScreenChildInfo({
   state,
+  onGradeChange,
   set,
 }: {
   state: WizardState;
+  onGradeChange: (g: GradeLevel) => void;
   set: (p: Partial<WizardState>) => void;
 }) {
   return (
     <div className="space-y-5">
+      <h1 className="text-xl font-bold text-ink">About your child</h1>
       <div>
         <label className="block text-sm font-medium text-ink mb-1">Child's name</label>
         <input
@@ -51,19 +140,20 @@ function StepNameGrade({
           onChange={e => set({ childName: e.target.value })}
           placeholder="e.g. Aiden"
           maxLength={50}
+          autoFocus
           className="w-full rounded-card border border-line px-4 py-3 text-ink placeholder:text-muted focus:outline-none focus:border-primary"
         />
       </div>
       <div>
         <label className="block text-sm font-medium text-ink mb-2">Current grade</label>
-        <div className="flex gap-3">
-          {GRADE_OPTIONS.map(g => (
+        <div className="grid grid-cols-4 gap-2">
+          {ALL_GRADES.map(g => (
             <button
               key={g}
               type="button"
-              onClick={() => set({ gradeLevel: g })}
+              onClick={() => onGradeChange(g)}
               className={[
-                'flex-1 rounded-card border-2 py-3 text-sm font-semibold transition-colors',
+                'rounded-card border-2 py-2.5 text-sm font-semibold transition-colors',
                 state.gradeLevel === g
                   ? 'border-primary bg-primary text-white'
                   : 'border-line bg-surface text-ink hover:border-primary/40',
@@ -73,73 +163,142 @@ function StepNameGrade({
             </button>
           ))}
         </div>
+        {state.gradeLevel === 'K2' && (
+          <p className="text-xs text-primary mt-2 bg-primary-soft rounded-lg px-3 py-2">
+            We'll use our P1 Readiness tracks — no syllabus upload needed.
+          </p>
+        )}
+        {state.gradeLevel === 'P6' && (
+          <p className="text-xs text-primary mt-2 bg-primary-soft rounded-lg px-3 py-2">
+            PSLE year — we'll prioritise revision and build buffer weeks before each exam.
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
-function StepSubjects({
+function ScreenSubjects({
   state,
   set,
 }: {
   state: WizardState;
   set: (p: Partial<WizardState>) => void;
 }) {
+  const available = state.gradeLevel ? subjectsForGrade(state.gradeLevel as GradeLevel) : [];
+  const isK2 = state.gradeLevel === 'K2';
+
   function toggle(s: Subject) {
-    const next = state.subjects.includes(s)
-      ? state.subjects.filter(x => x !== s)
-      : [...state.subjects, s];
-    set({ subjects: next });
+    set({
+      subjects: state.subjects.includes(s)
+        ? state.subjects.filter(x => x !== s)
+        : [...state.subjects, s],
+    });
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-sm text-muted">Select subjects to include in the study plan.</p>
-      {ALL_SUBJECTS.map(s => (
-        <button
-          key={s}
-          type="button"
-          onClick={() => toggle(s)}
-          className={[
-            'w-full text-left rounded-card border-2 px-4 py-3 flex items-center gap-3 transition-colors',
-            state.subjects.includes(s)
-              ? 'border-primary bg-primary/5'
-              : 'border-line bg-surface hover:border-primary/40',
-          ].join(' ')}
-        >
-          <span
-            className={[
-              'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0',
-              state.subjects.includes(s) ? 'border-primary bg-primary' : 'border-muted',
-            ].join(' ')}
-          >
-            {state.subjects.includes(s) && (
-              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
-                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
-          </span>
-          <span className="font-medium text-ink text-sm">{s}</span>
-        </button>
-      ))}
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-xl font-bold text-ink">
+          {isK2 ? 'Readiness tracks' : 'Which subjects?'}
+        </h1>
+        <p className="text-sm text-muted mt-1">
+          {isK2
+            ? `Select the tracks for ${state.childName || 'your child'}'s readiness plan.`
+            : `Select subjects for ${state.childName || 'your child'}'s study plan.`}
+        </p>
+      </div>
+      <div className="space-y-2">
+        {available.map(s => {
+          const checked = state.subjects.includes(s);
+          return (
+            <button
+              key={s}
+              type="button"
+              onClick={() => toggle(s)}
+              className={[
+                'w-full text-left rounded-card border-2 px-4 py-3 flex items-center gap-3 transition-colors',
+                checked ? 'border-primary bg-primary/5' : 'border-line bg-surface hover:border-primary/40',
+              ].join(' ')}
+            >
+              <span className={[
+                'w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0',
+                checked ? 'border-primary bg-primary' : 'border-muted',
+              ].join(' ')}>
+                {checked && (
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 12 12">
+                    <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <span className="font-medium text-ink text-sm">
+                {subjectDisplayName(s, isK2)}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
-function StepExamDates({
+function ScreenStudyTime({
   state,
   set,
 }: {
   state: WizardState;
   set: (p: Partial<WizardState>) => void;
 }) {
+  const grade = state.gradeLevel as GradeLevel;
+  const { min, max, step } = sliderConfig(grade);
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-bold text-ink">Study time</h1>
+        <p className="text-sm text-muted mt-1">
+          How much time should {state.childName || 'your child'} study each week?
+        </p>
+      </div>
+      <div className="text-center py-2">
+        <span className="text-5xl font-bold text-primary">{formatStudyTime(state.weeklyMinutes)}</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={state.weeklyMinutes}
+        onChange={e => set({ weeklyMinutes: parseInt(e.target.value, 10) })}
+        className="w-full accent-primary"
+      />
+      <div className="flex justify-between text-xs text-muted">
+        <span>{formatStudyTime(min)}</span>
+        <span>{formatStudyTime(max)}</span>
+      </div>
+      <p className="text-xs text-muted text-center bg-primary-soft rounded-lg px-3 py-2">
+        {gradeTip(grade)}
+      </p>
+    </div>
+  );
+}
+
+function ScreenExamDates({
+  state,
+  set,
+}: {
+  state: WizardState;
+  set: (p: Partial<WizardState>) => void;
+}) {
+  const isP6 = state.gradeLevel === 'P6';
+
   function addDate() {
-    set({ examDates: [...state.examDates, { label: '', date: '', subject: '' }] });
+    const label = isP6 && state.examDates.length === 0 ? 'PSLE' : '';
+    set({ examDates: [...state.examDates, { label, date: '' }] });
   }
 
   function updateDate(i: number, patch: Partial<ExamDate>) {
-    const next = state.examDates.map((d, idx) => (idx === i ? { ...d, ...patch } : d));
-    set({ examDates: next });
+    set({ examDates: state.examDates.map((d, idx) => (idx === i ? { ...d, ...patch } : d)) });
   }
 
   function removeDate(i: number) {
@@ -148,61 +307,60 @@ function StepExamDates({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">Add upcoming exams or assessments. You can add more later.</p>
+      <div>
+        <h1 className="text-xl font-bold text-ink">Upcoming exams</h1>
+        <p className="text-sm text-muted mt-1">
+          Add assessment dates so we can build buffer weeks. <span className="text-primary font-medium">Optional</span> — you can add these from the dashboard later.
+        </p>
+      </div>
 
-      {state.examDates.map((d, i) => (
-        <div key={i} className="rounded-card border border-line p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted uppercase tracking-wide">Exam {i + 1}</span>
-            <button
-              type="button"
-              onClick={() => removeDate(i)}
-              className="text-muted hover:text-ink text-xs"
-            >
-              Remove
-            </button>
-          </div>
-          <input
-            type="text"
-            placeholder="Label (e.g. SA1 Mathematics)"
-            value={d.label}
-            onChange={e => updateDate(i, { label: e.target.value })}
-            className="w-full rounded-lg border border-line px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-primary"
-          />
-          <div className="flex gap-2">
-            <select
-              value={d.subject}
-              onChange={e => updateDate(i, { subject: e.target.value as Subject | '' })}
-              className="flex-1 rounded-lg border border-line px-3 py-2 text-sm text-ink bg-surface focus:outline-none focus:border-primary"
-            >
-              <option value="">All subjects</option>
-              {state.subjects.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-            <input
-              type="date"
-              value={d.date}
-              onChange={e => updateDate(i, { date: e.target.value })}
-              className="flex-1 rounded-lg border border-line px-3 py-2 text-sm text-ink focus:outline-none focus:border-primary"
-            />
-          </div>
+      {state.examDates.length === 0 ? (
+        <div className="rounded-card border-2 border-dashed border-line py-8 text-center space-y-3">
+          <p className="text-sm text-muted">No exam dates added</p>
+          <button type="button" onClick={addDate} className="btn-primary text-sm px-5 py-2">
+            + Add exam date
+          </button>
         </div>
-      ))}
-
-      <button
-        type="button"
-        onClick={addDate}
-        className="w-full rounded-card border-2 border-dashed border-line py-3 text-sm text-muted hover:border-primary/40 hover:text-primary transition-colors"
-      >
-        + Add exam date
-      </button>
+      ) : (
+        <div className="space-y-3">
+          {state.examDates.map((d, i) => (
+            <div key={i} className="rounded-card border border-line p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-muted uppercase tracking-wide">Exam {i + 1}</span>
+                <button type="button" onClick={() => removeDate(i)} className="text-muted hover:text-ink text-xs">
+                  Remove
+                </button>
+              </div>
+              <input
+                type="text"
+                placeholder={isP6 && i === 0 ? 'PSLE' : 'Label (e.g. SA1 Maths)'}
+                value={d.label}
+                onChange={e => updateDate(i, { label: e.target.value })}
+                className="w-full rounded-lg border border-line px-3 py-2 text-sm text-ink placeholder:text-muted focus:outline-none focus:border-primary"
+              />
+              <input
+                type="date"
+                value={d.date}
+                onChange={e => updateDate(i, { date: e.target.value })}
+                className="w-full rounded-lg border border-line px-3 py-2 text-sm text-ink focus:outline-none focus:border-primary"
+              />
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addDate}
+            className="w-full rounded-card border-2 border-dashed border-line py-2.5 text-sm text-muted hover:border-primary/40 hover:text-primary transition-colors"
+          >
+            + Add another exam
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-function StepCalendar({
-  state: _state,
+function ScreenSEN({
+  state,
   set,
 }: {
   state: WizardState;
@@ -210,140 +368,89 @@ function StepCalendar({
 }) {
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">
-        Upload your school calendar to automatically mark holidays and school events as study-free days.
-      </p>
-      <div className="rounded-card border-2 border-dashed border-line p-6 text-center space-y-2">
-        <div className="text-2xl">📅</div>
-        <p className="text-sm font-medium text-ink">Upload calendar file (.ics or .pdf)</p>
-        <p className="text-xs text-muted">You can also upload this later from the dashboard.</p>
-        <label className="inline-block mt-2">
-          <span className="btn-primary text-sm px-4 py-2 cursor-pointer">Choose file</span>
-          <input
-            type="file"
-            accept=".ics,.pdf"
-            className="hidden"
-            onChange={() => set({ calendarSkipped: false })}
-          />
-        </label>
-      </div>
-      <button
-        type="button"
-        onClick={() => set({ calendarSkipped: true })}
-        className="w-full text-sm text-muted underline underline-offset-2 hover:text-ink"
-      >
-        Skip for now
-      </button>
-    </div>
-  );
-}
-
-function StepStudyHours({
-  state,
-  set,
-}: {
-  state: WizardState;
-  set: (p: Partial<WizardState>) => void;
-}) {
-  const hours = Math.round(state.weeklyMinutes / 60);
-
-  return (
-    <div className="space-y-5">
-      <p className="text-sm text-muted">
-        How many hours per week should {state.childName || 'your child'} study? We'll spread it across selected subjects.
-      </p>
-      <div className="text-center">
-        <span className="text-5xl font-bold text-primary">{hours}</span>
-        <span className="text-xl text-muted ml-1">hrs/week</span>
-      </div>
-      <input
-        type="range"
-        min={60}
-        max={600}
-        step={30}
-        value={state.weeklyMinutes}
-        onChange={e => set({ weeklyMinutes: parseInt(e.target.value, 10) })}
-        className="w-full accent-primary"
-      />
-      <div className="flex justify-between text-xs text-muted">
-        <span>1 hr</span>
-        <span>5 hrs</span>
-        <span>10 hrs</span>
-      </div>
-      <p className="text-xs text-muted text-center">
-        Recommended for {state.gradeLevel}: 1–3 hours on school days.
-      </p>
-    </div>
-  );
-}
-
-function StepPreview({
-  state,
-  set,
-}: {
-  state: WizardState;
-  set: (p: Partial<WizardState>) => void;
-}) {
-  return (
-    <div className="space-y-5">
-      <div className="rounded-card bg-surface shadow-card p-5 space-y-3">
-        <Row label="Name" value={state.childName} />
-        <Row label="Grade" value={state.gradeLevel || '—'} />
-        <Row label="Subjects" value={state.subjects.join(', ') || '—'} />
-        <Row label="Exam dates" value={`${state.examDates.filter(d => d.date).length} added`} />
-        <Row label="Weekly study" value={`${Math.round(state.weeklyMinutes / 60)} hrs/week`} />
-        <Row label="SEN profile" value={state.senProfile ?? 'None'} />
-      </div>
       <div>
-        <p className="text-sm font-medium text-ink mb-2">SEN profile (optional)</p>
-        <SENProfilePicker value={state.senProfile} onChange={v => set({ senProfile: v })} />
+        <h1 className="text-xl font-bold text-ink">Learning needs</h1>
+        <p className="text-sm text-muted mt-1">
+          Does {state.childName || 'your child'} have any special learning needs? This adjusts pacing and structure, not content. You can change this anytime.
+        </p>
       </div>
+      <SENProfilePicker value={state.senProfile} onChange={v => set({ senProfile: v })} />
     </div>
   );
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-baseline gap-4">
-      <span className="text-sm text-muted">{label}</span>
+    <div className="flex justify-between items-start gap-4">
+      <span className="text-sm text-muted shrink-0">{label}</span>
       <span className="text-sm font-medium text-ink text-right">{value}</span>
     </div>
   );
 }
 
-// ─── Wizard shell ──────────────────────────────────────────────────────────
+function ScreenGenerate({
+  state,
+  error,
+}: {
+  state: WizardState;
+  error: string | null;
+}) {
+  const isK2 = state.gradeLevel === 'K2';
+  const datesAdded = state.examDates.filter(d => d.date && d.label).length;
 
-const STEP_TITLES = [
-  "Let's set up your child's profile",
-  'Which subjects?',
-  'Any upcoming exams?',
-  'School calendar',
-  'Weekly study budget',
-  'Confirm & generate plan',
-];
+  return (
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-bold text-ink">Ready to generate!</h1>
+        <p className="text-sm text-muted mt-1">
+          Here's {state.childName}'s study plan summary:
+        </p>
+      </div>
 
-function canAdvance(step: number, s: WizardState): boolean {
-  if (step === 1) return s.childName.trim().length > 0 && s.gradeLevel !== '';
-  if (step === 2) return s.subjects.length > 0;
-  if (step === 3) return true; // exam dates optional
-  if (step === 4) return true; // calendar optional
-  if (step === 5) return s.weeklyMinutes > 0;
-  return true;
+      <div className="rounded-card bg-surface border border-line p-4 space-y-3">
+        <SummaryRow label="Name" value={state.childName} />
+        <SummaryRow label="Grade" value={state.gradeLevel || '—'} />
+        <SummaryRow
+          label={isK2 ? 'Readiness tracks' : 'Subjects'}
+          value={state.subjects.map(s => subjectDisplayName(s, isK2)).join(', ') || '—'}
+        />
+        <SummaryRow label="Weekly study" value={formatStudyTime(state.weeklyMinutes)} />
+        {!isK2 && (
+          <SummaryRow
+            label="Exam dates"
+            value={datesAdded > 0 ? `${datesAdded} added` : 'None — add from dashboard'}
+          />
+        )}
+        <SummaryRow label="SEN profile" value={state.senProfile ?? 'None'} />
+      </div>
+
+      {isK2 && (
+        <div className="rounded-card bg-primary-soft border border-primary/20 px-4 py-3 text-xs text-primary-dark leading-relaxed">
+          We'll use P1 Readiness tracks and set up a countdown to P1 intake.
+        </div>
+      )}
+
+      {error && (
+        <p className="text-sm text-game-orange bg-game-orange-tint rounded-lg px-4 py-2">{error}</p>
+      )}
+    </div>
+  );
 }
+
+// ─── Wizard shell ────────────────────────────────────────────────────────────
 
 export function OnboardingWizard() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [screen, setScreen] = useState<WizardScreen>('welcome');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [state, setState] = useState<WizardState>({
     childName: '',
     gradeLevel: '',
-    subjects: ['English', 'Mathematics', 'Science'],
-    examDates: [],
-    calendarSkipped: false,
+    subjects: ['English', 'Mathematics'],
     weeklyMinutes: 120,
+    examDates: [],
     senProfile: null,
   });
 
@@ -351,13 +458,45 @@ export function OnboardingWizard() {
     setState(prev => ({ ...prev, ...patch }));
   }
 
+  function handleGradeChange(grade: GradeLevel) {
+    set({
+      gradeLevel: grade,
+      subjects: defaultSubjectsForGrade(grade),
+      weeklyMinutes: defaultMinutesForGrade(grade),
+    });
+  }
+
+  const screens = getScreenOrder(state.gradeLevel);
+  const currentIdx = screens.indexOf(screen);
+  const numberedScreens = screens.filter(s => NUMBERED_SCREENS.includes(s));
+  const currentNumberedIdx = numberedScreens.indexOf(screen);
+  const totalSteps = numberedScreens.length;
+
+  function goNext() {
+    const next = screens[currentIdx + 1];
+    if (next) setScreen(next);
+  }
+
+  function goBack() {
+    const prev = screens[currentIdx - 1];
+    if (prev) setScreen(prev);
+  }
+
+  function canAdvance(): boolean {
+    if (screen === 'child-info') return state.childName.trim().length > 0 && state.gradeLevel !== '';
+    if (screen === 'subjects') return state.subjects.length > 0;
+    return true;
+  }
+
   async function handleFinish() {
     setSubmitting(true);
     setError(null);
     try {
+      const grade = state.gradeLevel as GradeLevel;
       const { id: childId } = await api.post<{ id: string }>('/children', {
         name: state.childName,
-        grade_level: state.gradeLevel,
+        grade_level: grade,
+        grade_band: gradeBandForLevel(grade),
         sen_profile: state.senProfile,
       });
 
@@ -376,72 +515,77 @@ export function OnboardingWizard() {
     }
   }
 
-  const progress = ((step - 1) / (STEPS - 1)) * 100;
+  const showProgress = screen !== 'welcome' && screen !== 'generate';
+  const progressPct = showProgress && totalSteps > 0
+    ? ((currentNumberedIdx + 1) / totalSteps) * 100
+    : 0;
 
   return (
     <div className="min-h-screen bg-bg flex flex-col items-center px-4 py-8">
-      {/* Header */}
-      <div className="w-full max-w-md mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-muted font-medium">Step {step} of {STEPS}</span>
-          <span className="text-xs text-muted">{Math.round(progress)}%</span>
+      {/* Progress bar */}
+      {showProgress && (
+        <div className="w-full max-w-md mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-muted font-medium">
+              Step {currentNumberedIdx + 1} of {totalSteps}
+            </span>
+            <span className="text-xs text-muted">{Math.round(progressPct)}%</span>
+          </div>
+          <div className="h-1.5 rounded-pill bg-line overflow-hidden">
+            <div
+              className="h-full rounded-pill bg-primary transition-all duration-300"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
         </div>
-        <div className="h-1.5 rounded-pill bg-line overflow-hidden">
-          <div
-            className="h-full rounded-pill bg-primary transition-all duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+      )}
 
       {/* Card */}
       <div className="w-full max-w-md rounded-card bg-surface shadow-card p-6 space-y-5">
-        <h1 className="text-xl font-bold text-ink">{STEP_TITLES[step - 1]}</h1>
-
-        {step === 1 && <StepNameGrade state={state} set={set} />}
-        {step === 2 && <StepSubjects state={state} set={set} />}
-        {step === 3 && <StepExamDates state={state} set={set} />}
-        {step === 4 && <StepCalendar state={state} set={set} />}
-        {step === 5 && <StepStudyHours state={state} set={set} />}
-        {step === 6 && <StepPreview state={state} set={set} />}
-
-        {error && (
-          <p className="text-sm text-game-orange bg-game-orange-tint rounded-lg px-4 py-2">
-            {error}
-          </p>
+        {screen === 'welcome' && <ScreenWelcome onStart={goNext} />}
+        {screen === 'child-info' && (
+          <ScreenChildInfo state={state} onGradeChange={handleGradeChange} set={set} />
         )}
+        {screen === 'subjects' && <ScreenSubjects state={state} set={set} />}
+        {screen === 'study-time' && <ScreenStudyTime state={state} set={set} />}
+        {screen === 'exam-dates' && <ScreenExamDates state={state} set={set} />}
+        {screen === 'sen' && <ScreenSEN state={state} set={set} />}
+        {screen === 'generate' && <ScreenGenerate state={state} error={error} />}
 
-        <div className="flex gap-3 pt-2">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={() => setStep(s => s - 1)}
-              disabled={submitting}
-              className="flex-1 rounded-card border-2 border-line py-3 text-sm font-semibold text-ink hover:border-primary/40 transition-colors disabled:opacity-50"
-            >
-              Back
-            </button>
-          )}
-          {step < STEPS ? (
-            <button
-              type="button"
-              onClick={() => setStep(s => s + 1)}
-              disabled={!canAdvance(step, state)}
-              className="flex-1 btn-primary py-3 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Continue
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void handleFinish()}
-              disabled={submitting || !canAdvance(STEPS, state)}
-              className="flex-1 btn-primary py-3 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {submitting ? 'Generating plan…' : 'Generate study plan'}
-            </button>
-          )}
-        </div>
+        {/* Navigation — hidden on welcome */}
+        {screen !== 'welcome' && (
+          <div className="flex gap-3 pt-2">
+            {screen !== 'child-info' && (
+              <button
+                type="button"
+                onClick={goBack}
+                disabled={submitting}
+                className="flex-1 rounded-card border-2 border-line py-3 text-sm font-semibold text-ink hover:border-primary/40 transition-colors disabled:opacity-50"
+              >
+                Back
+              </button>
+            )}
+            {screen !== 'generate' ? (
+              <button
+                type="button"
+                onClick={goNext}
+                disabled={!canAdvance()}
+                className="flex-1 btn-primary py-3 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Continue
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void handleFinish()}
+                disabled={submitting}
+                className="flex-1 btn-primary py-3 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {submitting ? 'Generating plan…' : `Generate ${state.childName}'s plan`}
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

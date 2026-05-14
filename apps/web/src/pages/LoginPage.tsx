@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '../services/supabase';
+import { api } from '../services/api';
+import type { Child } from '@schoolhub/types';
 
 type Tab = 'signup' | 'login';
 
@@ -56,7 +58,12 @@ export function LoginPage() {
       setError(err.message);
       return;
     }
-    navigate('/');
+    try {
+      const children = await api.get<Child[]>('/children');
+      navigate(children.length === 0 ? '/onboarding' : '/', { replace: true });
+    } catch {
+      navigate('/', { replace: true });
+    }
   }
 
   async function handleForgotPassword() {

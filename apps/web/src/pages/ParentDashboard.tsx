@@ -1,5 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
-import type { ReactNode } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { useEffect, type ReactNode } from 'react';
 import { ParentBottomNav } from '../components/parent/ParentBottomNav';
 import { ParentSidebar } from '../components/parent/ParentSidebar';
 import { Dashboard } from '../components/parent/Dashboard';
@@ -7,6 +7,8 @@ import { PlanPage } from '../components/parent/PlanPage';
 import { ProgressPage } from '../components/parent/ProgressPage';
 import { WellbeingPage } from '../components/parent/WellbeingPage';
 import { SettingsPage } from '../components/parent/SettingsPage';
+import { api } from '../services/api';
+import type { Child } from '@schoolhub/types';
 
 function PageShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   return (
@@ -33,6 +35,14 @@ function AlphaBanner() {
 }
 
 export function ParentDashboard() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get<Child[]>('/children')
+      .then(children => { if (children.length === 0) navigate('/onboarding', { replace: true }); })
+      .catch(() => null);
+  }, [navigate]);
+
   return (
     <div className="flex flex-col min-h-screen bg-bg">
       <AlphaBanner />

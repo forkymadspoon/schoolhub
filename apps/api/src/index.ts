@@ -12,6 +12,7 @@ import { reportsRouter } from './routes/reports.js';
 import { notificationsRouter } from './routes/notifications.js';
 import { curriculaRouter } from './routes/curricula.js';
 import { internalRouter } from './routes/internal.js';
+import { dataRouter } from './routes/data.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -35,6 +36,7 @@ app.use('/api/households',     authMiddleware, householdsRouter);
 app.use('/api/children',       authMiddleware, wellbeingRouter);
 app.use('/api/notifications',  authMiddleware, notificationsRouter);
 app.use('/api/reports',        authMiddleware, reportsRouter);
+app.use('/api/data',           authMiddleware, dataRouter);
 
 // Internal cron endpoints (service-role key, not user JWT)
 app.use('/api/internal',       internalRouter);

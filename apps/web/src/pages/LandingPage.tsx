@@ -253,7 +253,7 @@ export function LandingPage() {
             <img src="/logo.svg" alt="" height={30} width={110} aria-hidden />
           </div>
           <div className="flex gap-6 flex-wrap">
-            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']].map(([l, href]: [string, string]) => (
+            {([['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']] as const).map(([l, href]) => (
               <Link key={l} to={href} className="text-xs font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{l}</Link>
             ))}
           </div>

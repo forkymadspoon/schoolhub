@@ -37,3 +37,4 @@ supabase/.temp/
 
 # Puppeteer / report output
 reports/generated/
+.vercel

@@ -64,6 +64,38 @@ const config: Config = {
         normal: '300ms',
         slow:   '450ms',
       },
+      keyframes: {
+        pop: {
+          '0%':   { transform: 'scale(0.8)', opacity: '0' },
+          '70%':  { transform: 'scale(1.06)' },
+          '100%': { transform: 'scale(1)',   opacity: '1' },
+        },
+        'fade-up': {
+          from: { opacity: '0', transform: 'translateY(10px)' },
+          to:   { opacity: '1', transform: 'translateY(0)' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { opacity: '1' },
+          '50%':      { opacity: '0.45' },
+        },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '20%':      { transform: 'rotate(-12deg)' },
+          '60%':      { transform: 'rotate(12deg)' },
+          '80%':      { transform: 'rotate(-6deg)' },
+        },
+        'slide-in-left': {
+          from: { transform: 'translateX(-6px)', opacity: '0' },
+          to:   { transform: 'translateX(0)',    opacity: '1' },
+        },
+      },
+      animation: {
+        'pop':           'pop 280ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'fade-up':       'fade-up 320ms cubic-bezier(0.16, 1, 0.3, 1) both',
+        'pulse-soft':    'pulse-soft 2s ease-in-out infinite',
+        'wiggle':        'wiggle 0.5s ease-in-out',
+        'slide-in-left': 'slide-in-left 200ms ease both',
+      },
     },
   },
   plugins: [],

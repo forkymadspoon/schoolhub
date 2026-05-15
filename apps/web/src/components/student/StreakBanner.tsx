@@ -5,7 +5,7 @@ interface Props {
 export function StreakBanner({ streakDays }: Props) {
   return (
     <div className="card flex items-center gap-3 bg-game-yellow-tint border border-game-yellow/30">
-      <span className="text-2xl" role="img" aria-label="flame">🔥</span>
+      <span className="text-2xl animate-wiggle inline-block" role="img" aria-label="flame">🔥</span>
       {streakDays === 0 ? (
         <p className="text-muted text-sm font-medium">Start your streak today!</p>
       ) : (

@@ -86,7 +86,7 @@ export function LandingPage() {
         <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
           {['Features', 'How it works', 'Pricing'].map(label => (
             <li key={label}>
-              <a href={`#${label.toLowerCase().replace(' ', '-')}`} className="text-sm font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{label}</a>
+              <a href={`#${label.toLowerCase().replaceAll(' ', '-')}`} className="nav-link text-sm font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{label}</a>
             </li>
           ))}
         </ul>
@@ -100,11 +100,11 @@ export function LandingPage() {
       </nav>
 
       {mobileNavOpen && (
-        <div className="fixed top-[60px] inset-x-0 z-40 bg-bg/98 border-b border-line flex flex-col p-5 gap-1">
+        <div className="fixed top-[60px] inset-x-0 z-40 bg-surface border-b border-line flex flex-col p-5 gap-1 shadow-card">
           {['Features', 'How it works', 'Pricing'].map(label => (
-            <a key={label} href={`#${label.toLowerCase().replace(' ', '-')}`} onClick={() => setMobileNavOpen(false)} className="text-base font-semibold text-ink py-3 border-b border-line min-h-0">{label}</a>
+            <a key={label} href={`#${label.toLowerCase().replaceAll(' ', '-')}`} onClick={() => setMobileNavOpen(false)} className="text-base font-semibold text-ink py-3 border-b border-line" style={{ minHeight: 0 }}>{label}</a>
           ))}
-          <Link to="/login?tab=login" className="text-base font-semibold text-ink py-3 border-b border-line" onClick={() => setMobileNavOpen(false)}>Log in</Link>
+          <Link to="/login?tab=login" className="text-base font-semibold text-ink py-3 border-b border-line" style={{ minHeight: 0 }} onClick={() => setMobileNavOpen(false)}>Log in</Link>
           <Link to="/login" className="btn-primary mt-3 text-sm text-center" onClick={() => setMobileNavOpen(false)}>Get Started Free</Link>
         </div>
       )}
@@ -135,7 +135,7 @@ export function LandingPage() {
       </section>
 
       {/* ── STATS BAR ── */}
-      <div className="bg-ink py-8 px-8">
+      <div className="bg-primary-soft py-8 px-8">
         <div className="max-w-[1100px] mx-auto grid grid-cols-2 desktop:grid-cols-4">
           {[
             { num: '2,400+', label: 'Families on waitlist',       accent: true  },
@@ -143,9 +143,9 @@ export function LandingPage() {
             { num: '90%+',   label: 'Curriculum parse accuracy',   accent: true  },
             { num: '<3 min', label: 'Average setup time',          accent: false },
           ].map((s, i) => (
-            <div key={i} className="text-center py-2 px-4 border-r border-white/10 last:border-r-0">
-              <div className={`text-[34px] font-black leading-none mb-1 ${s.accent ? 'text-primary' : 'text-white'}`}>{s.num}</div>
-              <div className="text-xs font-semibold text-white/45">{s.label}</div>
+            <div key={i} className="text-center py-2 px-4 border-r border-primary/15 last:border-r-0">
+              <div className={`text-[34px] font-black leading-none mb-1 ${s.accent ? 'text-primary' : 'text-ink'}`}>{s.num}</div>
+              <div className="text-xs font-semibold text-muted">{s.label}</div>
             </div>
           ))}
         </div>
@@ -155,18 +155,20 @@ export function LandingPage() {
       <section className="py-24 px-8 bg-white" id="features">
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14 lp-reveal">
-            <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">SEC. ONE — FEATURES</span>
+            <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">FEATURES</span>
             <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-tight text-ink mb-3">Everything your child needs to excel</h2>
             <p className="text-[17px] text-muted font-medium leading-[1.65] max-w-[560px] mx-auto">Seven core capabilities that work together to build confident, capable learners — without the burnout.</p>
           </div>
           <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
-              <div key={f.num} className={`card hover:-translate-y-1 hover:shadow-card transition-transform duration-200 lp-reveal lp-d${i + 1}`}>
+              <div key={f.num} className={`card card-lift lp-reveal lp-d${i + 1} flex flex-col`}>
                 <div className="text-[11px] font-bold tracking-[2px] uppercase text-primary mb-3.5">{f.num}</div>
                 <div className="w-12 h-12 rounded-[14px] bg-primary-soft border border-primary/20 flex items-center justify-center text-[22px] mb-4">{f.icon}</div>
                 <h3 className="text-[17px] font-extrabold text-ink mb-2">{f.title}</h3>
                 <p className="text-sm text-muted leading-[1.65] font-medium">{f.body}</p>
-                <span className={`inline-flex items-center rounded-pill text-[11px] font-bold px-2.5 py-0.5 mt-3.5 ${f.blue ? 'bg-primary-soft text-primary-dark' : 'bg-game-green-tint text-[#3D6E00]'}`}>{f.tag}</span>
+                <div className="mt-auto pt-3.5">
+                  <span className={`inline-flex items-center rounded-pill text-[11px] font-bold px-2.5 py-0.5 ${f.blue ? 'bg-primary-soft text-primary-dark' : 'bg-game-green-tint text-[#3D6E00]'}`}>{f.tag}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -177,7 +179,7 @@ export function LandingPage() {
       <section className="py-24 px-8 bg-bg" id="how-it-works">
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14 lp-reveal">
-            <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">SEC. TWO — HOW IT WORKS</span>
+            <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">HOW IT WORKS</span>
             <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-tight text-ink mb-3">Up and running in 3 minutes</h2>
             <p className="text-[17px] text-muted font-medium leading-[1.65] max-w-[560px] mx-auto">No lengthy onboarding. No manual data entry. SchoolHub builds your plan automatically from day one.</p>
           </div>
@@ -198,7 +200,7 @@ export function LandingPage() {
       <section className="py-24 px-8 bg-white" id="pricing">
         <div className="max-w-[1100px] mx-auto">
           <div className="text-center mb-14 lp-reveal">
-            <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">SEC. THREE — PRICING</span>
+            <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-3.5">PRICING</span>
             <h2 className="text-[clamp(28px,4vw,42px)] font-extrabold tracking-tight text-ink mb-3">Simple, transparent pricing</h2>
             <p className="text-[17px] text-muted font-medium leading-[1.65] max-w-[560px] mx-auto">Start free for 7 days. Upgrade only when you're ready. Annual plan saves 2 months.</p>
           </div>
@@ -228,35 +230,34 @@ export function LandingPage() {
       </section>
 
       {/* ── CTA BAND ── */}
-      <section className="py-24 px-8 text-center" style={{ background: 'linear-gradient(160deg, #1A2B3D 0%, #0E2031 100%)' }}>
+      <section className="py-24 px-8 text-center bg-bg">
         <div className="max-w-[760px] mx-auto">
-          <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-white/40 mb-5">Get started today</span>
-          <h2 className="text-[clamp(32px,5vw,52px)] font-black tracking-tight text-white leading-[1.1] mb-4">
+          <span className="block text-[11px] font-bold tracking-[2.5px] uppercase text-primary mb-5">Get started today</span>
+          <h2 className="text-[clamp(32px,5vw,52px)] font-black tracking-tight text-ink leading-[1.1] mb-4">
             Ready to build your child's<br />study plan?
           </h2>
-          <p className="text-[18px] text-white/60 font-medium mb-10 leading-[1.55]">
+          <p className="text-[18px] text-muted font-medium mb-10 leading-[1.55]">
             Join thousands of Singapore families studying smarter.<br />7-day free trial. No credit card. Cancel anytime.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link to="/login" className="btn-primary !py-4 !px-9 text-base">Start Free Trial →</Link>
-            <a href="#features" className="btn-secondary !py-4 !px-9 text-base !bg-transparent !text-white/65 !border-white/20 hover:!bg-white/10 hover:!text-white">See all features</a>
+            <a href="#features" className="btn-secondary !py-4 !px-9 text-base">See all features</a>
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-ink border-t border-white/[0.07] py-10 px-8">
+      <footer className="bg-white border-t border-line py-10 px-8">
         <div className="max-w-[1100px] mx-auto flex items-center justify-between flex-wrap gap-5">
           <div className="flex items-center gap-2.5">
-            <img src="/logo.svg" alt="" height={20} width={73} aria-hidden style={{ filter: 'brightness(0) invert(1) opacity(0.6)' }} />
-            <span className="text-sm font-extrabold text-white">SchoolHub</span>
+            <img src="/logo.svg" alt="" height={30} width={110} aria-hidden />
           </div>
           <div className="flex gap-6 flex-wrap">
-            {['Privacy Policy', 'Terms of Service', 'PDPA', 'Contact'].map(l => (
-              <a key={l} href="#" className="text-xs font-semibold text-white/35 hover:text-white/75 transition-colors min-h-0 min-w-0">{l}</a>
+            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']].map(([l, href]) => (
+              <Link key={l} to={href} className="text-xs font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{l}</Link>
             ))}
           </div>
-          <p className="text-xs text-white/25 font-medium">© 2026 SchoolHub · Singapore</p>
+          <p className="text-xs text-muted font-medium">© 2026 SchoolHub · Singapore</p>
         </div>
       </footer>
 

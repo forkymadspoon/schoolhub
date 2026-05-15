@@ -5,6 +5,10 @@ import { ParentDashboard } from './pages/ParentDashboard';
 import { StudentHome } from './pages/StudentHome';
 import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
+import { PrivacyPolicy } from './pages/PrivacyPolicy';
+import { TermsOfService } from './pages/TermsOfService';
+import { PDPAPage } from './pages/PDPAPage';
+import { ContactPage } from './pages/ContactPage';
 
 export function App() {
   const { session, loading } = useAuth();
@@ -29,6 +33,10 @@ export function App() {
           path="/student/*"
           element={session ? <StudentHome /> : <Navigate to="/" replace />}
         />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/pdpa" element={<PDPAPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route
           path="/*"
           element={session ? <ParentDashboard /> : <LandingPage />}

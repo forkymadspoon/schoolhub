@@ -14,8 +14,8 @@ export default defineConfig({
         name: 'SchoolHub',
         short_name: 'SchoolHub',
         description: 'AI-driven adaptive study scheduling for Singapore families',
-        theme_color: '#2563EB',
-        background_color: '#EAF3FA',
+        theme_color: '#198ECC',
+        background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -26,6 +26,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         // Cache-first for assigned bites (Scholar Pro — gated at runtime)
         runtimeCaching: [
           {

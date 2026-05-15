@@ -35,10 +35,7 @@ export function LoginPage() {
       options: { data: { full_name: name } },
     });
     setLoading(false);
-    if (err) {
-      setError(err.message);
-      return;
-    }
+    if (err) { setError(err.message); return; }
     if (data.session) {
       navigate('/onboarding');
     } else {
@@ -54,10 +51,7 @@ export function LoginPage() {
     setLoading(true);
     const { error: err } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (err) {
-      setError(err.message);
-      return;
-    }
+    if (err) { setError(err.message); return; }
     try {
       const children = await api.get<Child[]>('/children');
       navigate(children.length === 0 ? '/onboarding' : '/', { replace: true });
@@ -67,63 +61,54 @@ export function LoginPage() {
   }
 
   async function handleForgotPassword() {
-    if (!email) {
-      setError('Enter your email address above first.');
-      return;
-    }
+    if (!email) { setError('Enter your email address above first.'); return; }
     setError('');
     setLoading(true);
     const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/login?tab=login`,
     });
     setLoading(false);
-    if (err) {
-      setError(err.message);
-    } else {
-      setInfo('Password reset link sent — check your inbox.');
-    }
+    if (err) { setError(err.message); } else { setInfo('Password reset link sent — check your inbox.'); }
   }
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col">
-      {/* Nav */}
-      <nav className="w-full px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 text-primary font-bold text-lg">
-          <span className="text-2xl">📚</span>
-          SchoolHub
-        </Link>
-        <Link to="/" className="text-sm text-muted hover:text-ink transition-colors">
-          ← Back to home
-        </Link>
-      </nav>
+    <div className="min-h-screen flex">
 
-      {/* Card */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
-          <div className="card rounded-card p-8 shadow-lg">
-            {/* Logo / heading */}
-            <div className="text-center mb-6">
-              <div className="text-4xl mb-2">📚</div>
-              <h1 className="text-2xl font-bold text-ink">
-                {tab === 'signup' ? 'Create your account' : 'Welcome back'}
-              </h1>
-              <p className="text-sm text-muted mt-1">
-                {tab === 'signup'
-                  ? 'Start your free 7-day trial — no credit card required.'
-                  : 'Log in to your SchoolHub account.'}
-              </p>
-            </div>
+      {/* ── LEFT: Form panel ── */}
+      <div className="w-full lg:w-[460px] xl:w-[500px] flex flex-col bg-white border-r border-line flex-shrink-0">
+
+        {/* Top bar */}
+        <div className="px-8 py-5 flex items-center justify-between border-b border-line">
+          <Link to="/" className="flex items-center gap-2.5 min-h-0 min-w-0">
+            <img src="/logo.svg" alt="SchoolHub" height={32} width={118} />
+          </Link>
+          <Link to="/" className="text-xs font-semibold text-muted hover:text-ink transition-colors min-h-0">
+            ← Back to home
+          </Link>
+        </div>
+
+        {/* Form */}
+        <div className="flex-1 flex flex-col justify-center px-8 py-10">
+          <div className="max-w-[360px] w-full mx-auto">
+
+            <h1 className="text-[26px] font-extrabold text-ink mb-1">
+              {tab === 'signup' ? 'Create your account' : 'Welcome back'}
+            </h1>
+            <p className="text-sm text-muted mb-8 leading-[1.6]">
+              {tab === 'signup'
+                ? 'Start your free 7-day trial — no credit card required.'
+                : 'Log in to your SchoolHub account.'}
+            </p>
 
             {/* Tabs */}
-            <div className="flex rounded-pill bg-surface p-1 mb-6">
+            <div className="flex rounded-pill bg-surface p-1 mb-7 border border-line">
               {(['signup', 'login'] as Tab[]).map((t) => (
                 <button
                   key={t}
+                  type="button"
                   onClick={() => setTab(t)}
-                  className={`flex-1 py-2 text-sm font-medium rounded-pill transition-all ${
-                    tab === t
-                      ? 'bg-white text-primary shadow-sm'
-                      : 'text-muted hover:text-ink'
+                  className={`flex-1 py-2 text-sm font-semibold rounded-pill transition-all ${
+                    tab === t ? 'bg-white text-primary shadow-sm' : 'text-muted hover:text-ink'
                   }`}
                 >
                   {t === 'signup' ? 'Sign Up' : 'Log In'}
@@ -131,111 +116,129 @@ export function LoginPage() {
               ))}
             </div>
 
-            {/* Feedback */}
+            {/* Feedback banners */}
             {error && (
-              <div className="mb-4 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+              <div className="mb-5 px-3.5 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
                 {error}
               </div>
             )}
             {info && (
-              <div className="mb-4 px-3 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm">
+              <div className="mb-5 px-3.5 py-2.5 rounded-xl bg-game-green-tint border border-game-green/30 text-[#3D6E00] text-sm">
                 {info}
               </div>
             )}
 
-            {/* Form */}
+            {/* Form fields */}
             <form onSubmit={tab === 'signup' ? handleSignUp : handleLogin} className="space-y-4">
               {tab === 'signup' && (
                 <div>
-                  <label className="block text-sm font-medium text-ink mb-1">Full name</label>
+                  <label className="block text-xs font-bold text-ink uppercase tracking-wide mb-1.5">Full name</label>
                   <input
-                    type="text"
-                    required
-                    value={name}
+                    type="text" required value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Jane Tan"
-                    className="w-full px-3 py-2.5 rounded-lg border border-line bg-white text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+                    className="w-full px-4 py-3 rounded-xl border border-line bg-white text-ink placeholder:text-muted focus:outline-none focus:border-primary transition-colors text-sm"
+                    style={{ minHeight: 0 }}
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-ink mb-1">Email address</label>
+                <label className="block text-xs font-bold text-ink uppercase tracking-wide mb-1.5">Email address</label>
                 <input
-                  type="email"
-                  required
-                  value={email}
+                  type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full px-3 py-2.5 rounded-lg border border-line bg-white text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-line bg-white text-ink placeholder:text-muted focus:outline-none focus:border-primary transition-colors text-sm"
+                  style={{ minHeight: 0 }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-ink mb-1">Password</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-ink uppercase tracking-wide">Password</label>
+                  {tab === 'login' && (
+                    <button type="button" onClick={handleForgotPassword} className="text-xs text-primary hover:underline font-medium" style={{ minHeight: 0 }}>
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
                 <input
-                  type="password"
-                  required
-                  minLength={8}
-                  value={password}
+                  type="password" required minLength={8} value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={tab === 'signup' ? 'Min. 8 characters' : '••••••••'}
-                  className="w-full px-3 py-2.5 rounded-lg border border-line bg-white text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-sm"
+                  className="w-full px-4 py-3 rounded-xl border border-line bg-white text-ink placeholder:text-muted focus:outline-none focus:border-primary transition-colors text-sm"
+                  style={{ minHeight: 0 }}
                 />
               </div>
-
-              {tab === 'login' && (
-                <div className="text-right">
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-              )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-2.5 text-sm font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
+                className="btn-primary w-full !py-3 text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed mt-2"
               >
-                {loading
-                  ? 'Please wait…'
-                  : tab === 'signup'
-                  ? 'Create account'
-                  : 'Log in'}
+                {loading ? 'Please wait…' : tab === 'signup' ? 'Create account →' : 'Log in →'}
               </button>
             </form>
 
-            {/* Switch tab hint */}
-            <p className="text-center text-sm text-muted mt-5">
+            <p className="text-center text-sm text-muted mt-6">
               {tab === 'signup' ? (
-                <>
-                  Already have an account?{' '}
-                  <button onClick={() => setTab('login')} className="text-primary hover:underline font-medium">
-                    Log in
-                  </button>
+                <>Already have an account?{' '}
+                  <button type="button" onClick={() => setTab('login')} className="text-primary hover:underline font-semibold" style={{ minHeight: 0 }}>Log in</button>
                 </>
               ) : (
-                <>
-                  New to SchoolHub?{' '}
-                  <button onClick={() => setTab('signup')} className="text-primary hover:underline font-medium">
-                    Create account
-                  </button>
+                <>New to SchoolHub?{' '}
+                  <button type="button" onClick={() => setTab('signup')} className="text-primary hover:underline font-semibold" style={{ minHeight: 0 }}>Create account</button>
                 </>
               )}
             </p>
           </div>
+        </div>
 
-          <p className="text-center text-xs text-muted mt-4">
+        {/* Legal footer */}
+        <div className="px-8 py-5 border-t border-line">
+          <p className="text-xs text-muted">
             By continuing you agree to our{' '}
-            <span className="text-primary cursor-pointer hover:underline">Terms</span> and{' '}
-            <span className="text-primary cursor-pointer hover:underline">Privacy Policy</span>.
+            <Link to="/terms" className="text-primary hover:underline">Terms</Link> and{' '}
+            <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
           </p>
         </div>
       </div>
+
+      {/* ── RIGHT: Typographic hero panel ── */}
+      <div className="hidden lg:flex flex-1 bg-primary flex-col items-start justify-center px-16 xl:px-20 relative overflow-hidden select-none">
+
+        {/* Background decorative circles */}
+        <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5 pointer-events-none" />
+        <div className="absolute bottom-10 -left-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
+
+        {/* Big display type */}
+        <div className="relative z-10 text-white">
+          <div className="text-[clamp(56px,5.5vw,80px)] font-black leading-[0.9] tracking-tight">
+            <div>Study</div>
+            <div className="flex items-center gap-3 mt-1">smarter.<span className="text-[0.85em]">📚</span></div>
+            <div className="mt-7 text-white/75">Stress</div>
+            <div className="flex items-center gap-3 mt-1 text-white/75">less.<span className="text-[0.85em]">💚</span></div>
+            <div className="mt-7 text-white/50">PSLE</div>
+            <div className="flex items-center gap-3 mt-1 text-white/50">ready.<span className="text-[0.85em]">🎓</span></div>
+          </div>
+
+          {/* Stats row */}
+          <div className="mt-14 flex gap-10 border-t border-white/20 pt-8">
+            {[
+              { num: '2,400+', label: 'Families on waitlist' },
+              { num: '6',      label: 'MOE subjects covered' },
+              { num: '<3 min', label: 'Average setup time'   },
+            ].map(s => (
+              <div key={s.label}>
+                <div className="text-2xl font-black text-white">{s.num}</div>
+                <div className="text-xs text-white/50 mt-0.5 font-medium">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

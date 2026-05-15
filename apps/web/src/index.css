@@ -5,7 +5,7 @@
 /* ── CSS custom properties — Ocean Blue theme (parent-pilot-buddy reference) ─ */
 :root {
   /* Page & surface */
-  --bg:              #EAF4FB;   /* hsl(204 65% 95%) — sky-blue background */
+  --bg:              #FFFFFF;   /* white page background */
   --surface:         #FFFFFF;
   --ink:             #1F2B3D;   /* hsl(215 32% 18%) — dark navy */
   --muted:           #607085;   /* hsl(215 16% 45%) — blue-gray */

@@ -7,7 +7,7 @@ const config: Config = {
       // ── SchoolHub design tokens (Ocean Blue theme — matches parent-pilot-buddy reference) ──
       colors: {
         // Page & surface
-        bg:      '#EAF4FB',   // light sky-blue page background  hsl(204 65% 95%)
+        bg:      '#FFFFFF',   // white page background
         surface: '#FFFFFF',
         ink:     '#1F2B3D',   // dark navy text                  hsl(215 32% 18%)
         muted:   '#607085',   // blue-gray muted text             hsl(215 16% 45%)

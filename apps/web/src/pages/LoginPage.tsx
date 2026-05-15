@@ -75,7 +75,7 @@ export function LoginPage() {
     <div className="min-h-screen flex">
 
       {/* ── LEFT: Form panel ── */}
-      <div className="w-full lg:w-[460px] xl:w-[500px] flex flex-col bg-white border-r border-line flex-shrink-0">
+      <div className="w-full lg:w-1/2 flex flex-col bg-white border-r border-line flex-shrink-0">
 
         {/* Top bar */}
         <div className="px-8 py-5 flex items-center justify-between border-b border-line">

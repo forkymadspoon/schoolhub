@@ -23,7 +23,7 @@ function LegalLayout({ title, lastUpdated, children }: { title: string; lastUpda
         <div className="max-w-[720px] mx-auto flex items-center justify-between flex-wrap gap-4">
           <p className="text-xs text-muted">© 2026 SchoolHub · Singapore</p>
           <div className="flex gap-5 flex-wrap">
-            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']].map(([label, href]) => (
+            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']].map(([label, href]: [string, string]) => (
               <Link key={label} to={href} className="text-xs font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{label}</Link>
             ))}
           </div>

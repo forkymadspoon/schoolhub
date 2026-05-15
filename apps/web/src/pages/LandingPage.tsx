@@ -86,7 +86,7 @@ export function LandingPage() {
         <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
           {['Features', 'How it works', 'Pricing'].map(label => (
             <li key={label}>
-              <a href={`#${label.toLowerCase().replaceAll(' ', '-')}`} className="nav-link text-sm font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{label}</a>
+              <a href={`#${label.toLowerCase().split(' ').join('-')}`} className="nav-link text-sm font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{label}</a>
             </li>
           ))}
         </ul>
@@ -102,7 +102,7 @@ export function LandingPage() {
       {mobileNavOpen && (
         <div className="fixed top-[60px] inset-x-0 z-40 bg-surface border-b border-line flex flex-col p-5 gap-1 shadow-card">
           {['Features', 'How it works', 'Pricing'].map(label => (
-            <a key={label} href={`#${label.toLowerCase().replaceAll(' ', '-')}`} onClick={() => setMobileNavOpen(false)} className="text-base font-semibold text-ink py-3 border-b border-line" style={{ minHeight: 0 }}>{label}</a>
+            <a key={label} href={`#${label.toLowerCase().split(' ').join('-')}`} onClick={() => setMobileNavOpen(false)} className="text-base font-semibold text-ink py-3 border-b border-line" style={{ minHeight: 0 }}>{label}</a>
           ))}
           <Link to="/login?tab=login" className="text-base font-semibold text-ink py-3 border-b border-line" style={{ minHeight: 0 }} onClick={() => setMobileNavOpen(false)}>Log in</Link>
           <Link to="/login" className="btn-primary mt-3 text-sm text-center" onClick={() => setMobileNavOpen(false)}>Get Started Free</Link>
@@ -253,7 +253,7 @@ export function LandingPage() {
             <img src="/logo.svg" alt="" height={30} width={110} aria-hidden />
           </div>
           <div className="flex gap-6 flex-wrap">
-            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']].map(([l, href]) => (
+            {[['Privacy Policy', '/privacy'], ['Terms of Service', '/terms'], ['PDPA', '/pdpa'], ['Contact', '/contact']].map(([l, href]: [string, string]) => (
               <Link key={l} to={href} className="text-xs font-semibold text-muted hover:text-ink transition-colors min-h-0 min-w-0">{l}</Link>
             ))}
           </div>

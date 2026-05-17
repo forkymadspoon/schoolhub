@@ -80,7 +80,7 @@ export function LoginPage() {
         {/* Top bar */}
         <div className="px-8 py-5 flex items-center justify-between border-b border-line">
           <Link to="/" className="flex items-center gap-2.5 min-h-0 min-w-0">
-            <img src="/logo.svg" alt="SchoolHub" height={32} width={118} />
+            <img src="/logo.svg" alt="SchoolHub" height={44} width={161} />
           </Link>
           <Link to="/" className="text-xs font-semibold text-muted hover:text-ink transition-colors min-h-0">
             ← Back to home

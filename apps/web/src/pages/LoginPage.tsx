@@ -108,7 +108,7 @@ export function LoginPage() {
                   type="button"
                   onClick={() => setTab(t)}
                   className={`flex-1 py-2 text-sm font-semibold rounded-pill transition-all ${
-                    tab === t ? 'bg-white text-primary shadow-sm' : 'text-muted hover:text-ink'
+                    tab === t ? 'bg-primary text-white shadow-sm' : 'text-muted hover:text-ink'
                   }`}
                 >
                   {t === 'signup' ? 'Sign Up' : 'Log In'}

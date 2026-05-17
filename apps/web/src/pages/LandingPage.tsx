@@ -1,22 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import BotIcon from '../assets/icons/misc/bot.svg?react';
+import ChecklistIcon from '../assets/icons/interface/checklist.svg?react';
+import PuzzleIcon from '../assets/icons/interface/puzzle.svg?react';
+import TrophyIcon from '../assets/icons/interface/trophy.svg?react';
+import HeartIcon from '../assets/icons/interface/heart.svg?react';
+import StopwatchIcon from '../assets/icons/interface/stopwatch.svg?react';
+import CloudUpIcon from '../assets/icons/interface/cloud-up.svg?react';
+import UserIcon from '../assets/icons/interface/user.svg?react';
+import FolderIcon from '../assets/icons/interface/folder.svg?react';
+import CalendarIcon from '../assets/icons/interface/calendar.svg?react';
+import TickIcon from '../assets/icons/interface/tick.svg?react';
+import CrossIcon from '../assets/icons/interface/cross.svg?react';
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 const FEATURES = [
-  { num: '01', icon: '🤖', title: 'AI Adaptive Scheduling',   body: "Weekly study plans that auto-regenerate based on completion rates, exam proximity, and your child's pace. Powered by Claude Sonnet AI.", tag: 'Auto-regenerates weekly', blue: false },
-  { num: '02', icon: '📚', title: 'MOE Curriculum Aligned',   body: "Synced with Singapore's official P1–P6 syllabi for English, Maths, Science, and Chinese. No manual setup. Updated weekly automatically.", tag: 'All 6 MOE subjects', blue: false },
-  { num: '03', icon: '🧩', title: 'SEN Support Built-in',      body: "Optional ADHD and Autism Spectrum profiles adapt pacing, structure, and rewards. 5-minute bite cap for ADHD; 48-hour advance notice for ASD schedule changes.", tag: 'Evidence-based', blue: false },
-  { num: '04', icon: '🏆', title: 'Gamification That Works',   body: 'Streaks, XP points, and subject badges keep students genuinely motivated. XP awarded live within 2 seconds via WebSocket.', tag: 'Real-time rewards', blue: false },
-  { num: '05', icon: '💚', title: 'Wellbeing Guardrails',      body: 'Rule-based mental health monitoring flags overload, burnout, and exam anxiety early. Suggestions only — parent always overrides. Never clinical.', tag: 'Scholar Pro', blue: true },
-  { num: '06', icon: '⏱️', title: 'Exam Countdown, Always On', body: 'PSLE, SA1, and SA2 countdowns on every screen, colour-coded green → yellow → red. Upload your school calendar or enter dates manually.', tag: 'Persistent on every screen', blue: false },
-  { num: '07', icon: '📤', title: 'Your Data, Your Way',       body: 'Export everything as JSON — schedules, progress, and badges — then import on any device. Your data, zero lock-in.', tag: 'No lock-in, ever', blue: false },
+  { num: '01', Icon: BotIcon,       title: 'AI Adaptive Scheduling',   body: "Weekly study plans that auto-regenerate based on completion rates, exam proximity, and your child's pace. Powered by Claude Sonnet AI.", tag: 'Auto-regenerates weekly', blue: false },
+  { num: '02', Icon: ChecklistIcon, title: 'MOE Curriculum Aligned',   body: "Synced with Singapore's official P1–P6 syllabi for English, Maths, Science, and Chinese. No manual setup. Updated weekly automatically.", tag: 'All 6 MOE subjects', blue: false },
+  { num: '03', Icon: PuzzleIcon,    title: 'SEN Support Built-in',      body: "Optional ADHD and Autism Spectrum profiles adapt pacing, structure, and rewards. 5-minute bite cap for ADHD; 48-hour advance notice for ASD schedule changes.", tag: 'Evidence-based', blue: false },
+  { num: '04', Icon: TrophyIcon,    title: 'Gamification That Works',   body: 'Streaks, XP points, and subject badges keep students genuinely motivated. XP awarded live within 2 seconds via WebSocket.', tag: 'Real-time rewards', blue: false },
+  { num: '05', Icon: HeartIcon,     title: 'Wellbeing Guardrails',      body: 'Rule-based mental health monitoring flags overload, burnout, and exam anxiety early. Suggestions only — parent always overrides. Never clinical.', tag: 'Scholar Pro', blue: true },
+  { num: '06', Icon: StopwatchIcon, title: 'Exam Countdown, Always On', body: 'PSLE, SA1, and SA2 countdowns on every screen, colour-coded green → yellow → red. Upload your school calendar or enter dates manually.', tag: 'Persistent on every screen', blue: false },
+  { num: '07', Icon: CloudUpIcon,   title: 'Your Data, Your Way',       body: 'Export everything as JSON — schedules, progress, and badges — then import on any device. Your data, zero lock-in.', tag: 'No lock-in, ever', blue: false },
 ];
 
 const STEPS = [
-  { n: 1, icon: '👤', title: "Create your child's profile", body: "Add name, grade level, and optionally an SEN profile in under 60 seconds. Add siblings — SchoolHub manages the whole family in one place." },
-  { n: 2, icon: '📁', title: 'Upload your school files',    body: 'Drop in your school calendar (.ics/.pdf), exam dates, spelling lists (.csv/.xlsx), or syllabus PDF. Our AI parses everything automatically.' },
-  { n: 3, icon: '📅', title: 'Get your personalised plan',  body: 'A week-by-week schedule with spaced repetition and exam buffer weeks, generated in seconds. It auto-adjusts whenever life changes.' },
+  { n: 1, Icon: UserIcon,     title: "Create your child's profile", body: "Add name, grade level, and optionally an SEN profile in under 60 seconds. Add siblings — SchoolHub manages the whole family in one place." },
+  { n: 2, Icon: FolderIcon,   title: 'Upload your school files',    body: 'Drop in your school calendar (.ics/.pdf), exam dates, spelling lists (.csv/.xlsx), or syllabus PDF. Our AI parses everything automatically.' },
+  { n: 3, Icon: CalendarIcon, title: 'Get your personalised plan',  body: 'A week-by-week schedule with spaced repetition and exam buffer weeks, generated in seconds. It auto-adjusts whenever life changes.' },
 ];
 
 const PRICING = [
@@ -163,7 +175,9 @@ export function LandingPage() {
             {FEATURES.map((f, i) => (
               <div key={f.num} className={`card card-lift lp-reveal lp-d${i + 1} flex flex-col`}>
                 <div className="text-[11px] font-bold tracking-[2px] uppercase text-primary mb-3.5">{f.num}</div>
-                <div className="w-12 h-12 rounded-[14px] bg-primary-soft border border-primary/20 flex items-center justify-center text-[22px] mb-4">{f.icon}</div>
+                <div className="w-12 h-12 rounded-[14px] bg-primary-soft border border-primary/20 flex items-center justify-center mb-4">
+                  <f.Icon className="w-7 h-7" />
+                </div>
                 <h3 className="text-[17px] font-extrabold text-ink mb-2">{f.title}</h3>
                 <p className="text-sm text-muted leading-[1.65] font-medium">{f.body}</p>
                 <div className="mt-auto pt-3.5">
@@ -187,7 +201,7 @@ export function LandingPage() {
             {STEPS.map((s, i) => (
               <div key={s.n} className={`card text-center py-10 px-6 lp-reveal lp-d${i + 1}`}>
                 <div className="w-12 h-12 rounded-full bg-primary text-white text-lg font-black flex items-center justify-center mx-auto mb-4" style={{ boxShadow: '0 4px 16px rgba(25,142,204,0.35)' }}>{s.n}</div>
-                <div className="text-3xl mb-3.5">{s.icon}</div>
+                <s.Icon className="w-10 h-10 mx-auto mb-3.5" />
                 <h3 className="text-[17px] font-extrabold text-ink mb-2.5">{s.title}</h3>
                 <p className="text-sm text-muted leading-[1.65] font-medium">{s.body}</p>
               </div>
@@ -215,7 +229,9 @@ export function LandingPage() {
                 <ul className="list-none m-0 p-0 flex flex-col gap-2.5 mb-7">
                   {p.features.map(f => (
                     <li key={f.text} className={`flex items-start gap-2.5 text-sm font-medium ${f.yes ? 'text-ink' : 'text-muted'}`}>
-                      <span className={`w-[18px] h-[18px] rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center text-[9px] font-bold ${f.yes ? 'bg-game-green-tint border border-game-green text-[#3D6E00]' : 'bg-[#F0F0F0] text-[#CCC]'}`}>{f.yes ? '✓' : '✕'}</span>
+                      <span className={`w-[18px] h-[18px] rounded-full flex-shrink-0 mt-0.5 flex items-center justify-center ${f.yes ? 'bg-game-green-tint border border-game-green' : 'bg-[#F0F0F0]'}`}>
+                        {f.yes ? <TickIcon className="w-2.5 h-2.5" /> : <CrossIcon className="w-2.5 h-2.5 opacity-40" />}
+                      </span>
                       {f.text}
                     </li>
                   ))}

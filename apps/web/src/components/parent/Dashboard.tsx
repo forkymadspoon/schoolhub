@@ -8,6 +8,8 @@ import { useStats } from '../../hooks/useStats';
 import { subscribeToChildEvents } from '../../services/realtime';
 import { ExamCountdownWidget } from '../shared/ExamCountdownWidget';
 import { PsleChip } from '../shared/PsleChip';
+import { SubjectIcon } from '../shared/SubjectIcon';
+import NoteIcon from '../../assets/icons/interface/note.svg?react';
 import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { WellbeingPanel } from './WellbeingPanel';
 import { NotificationSettings } from './NotificationSettings';
@@ -42,12 +44,6 @@ function intensityChip(intensity: string) {
   return 'bg-primary-soft text-primary';
 }
 
-function badgeEmoji(subject: string) {
-  if (subject === 'Mathematics') return '🔢';
-  if (subject === 'Science')     return '🔬';
-  if (subject === 'English')     return '📖';
-  return '📚';
-}
 
 function fmtDate(iso: string) {
   const d = new Date(iso + 'T00:00:00');
@@ -254,6 +250,13 @@ export function Dashboard() {
                   <span className="opacity-70 font-normal">{child.grade_level}</span>
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => navigate('/onboarding')}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors border border-dashed border-line text-muted hover:border-primary hover:text-primary min-h-0"
+              >
+                + Add child
+              </button>
             </div>
           </div>
         </div>
@@ -266,25 +269,30 @@ export function Dashboard() {
       </header>
 
       {/* ── Mobile: child pills ── */}
-      {allChildren.length > 0 && (
-        <div className="md:hidden flex items-center gap-2 flex-wrap px-4 pt-3">
-          {allChildren.map((child, i) => (
-            <button
-              key={child.id}
-              type="button"
-              onClick={() => handleChildSwitch(child.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors ${
-                activeChild?.id === child.id
-                  ? 'bg-primary text-white'
-                  : 'bg-primary-soft text-primary hover:bg-primary/20'
-              }`}
-            >
-              <span>{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
-              <span>{child.name} {child.grade_level}</span>
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="md:hidden flex items-center gap-2 flex-wrap px-4 pt-3">
+        {allChildren.map((child, i) => (
+          <button
+            key={child.id}
+            type="button"
+            onClick={() => handleChildSwitch(child.id)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors ${
+              activeChild?.id === child.id
+                ? 'bg-primary text-white'
+                : 'bg-primary-soft text-primary hover:bg-primary/20'
+            }`}
+          >
+            <span>{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
+            <span>{child.name} {child.grade_level}</span>
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => navigate('/onboarding')}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors border border-dashed border-line text-muted hover:border-primary hover:text-primary min-h-0"
+        >
+          + Add child
+        </button>
+      </div>
 
       {/* ── Main two-column body ── */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_280px] overflow-hidden">
@@ -377,7 +385,7 @@ export function Dashboard() {
               </div>
             ) : upcomingBites.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-10 text-center px-5">
-                <span className="text-4xl">📚</span>
+                <NoteIcon className="w-10 h-10" />
                 <p className="text-ink font-semibold text-sm">
                   Ready to build {activeChild?.name ?? 'your child'}'s study plan?
                 </p>
@@ -516,7 +524,7 @@ export function Dashboard() {
                 <div className="flex flex-col gap-0.5">
                   {stats?.recent_badge ? (
                     <>
-                      <p className="text-xl leading-none">{badgeEmoji(stats.recent_badge.subject)}</p>
+                      <SubjectIcon subject={stats.recent_badge.subject} className="w-5 h-5" />
                       <p className="text-muted text-[10px] capitalize">{stats.recent_badge.tier}</p>
                     </>
                   ) : (
@@ -588,7 +596,7 @@ export function Dashboard() {
               <div className="flex flex-col gap-0.5">
                 {stats?.recent_badge ? (
                   <>
-                    <p className="text-2xl leading-none">{badgeEmoji(stats.recent_badge.subject)}</p>
+                    <SubjectIcon subject={stats.recent_badge.subject} className="w-6 h-6" />
                     <p className="text-muted text-[10px] capitalize">{stats.recent_badge.tier}</p>
                   </>
                 ) : (

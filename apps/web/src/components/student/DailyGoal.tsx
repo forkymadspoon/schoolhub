@@ -6,6 +6,7 @@ import { subscribeToChildEvents } from '../../services/realtime';
 import { StreakBanner } from './StreakBanner';
 import { BiteViewer } from './BiteViewer';
 import { FocusMode } from './FocusMode';
+import NoteIcon from '../../assets/icons/interface/note.svg?react';
 
 interface TodayBiteRow {
   id: string;
@@ -152,7 +153,7 @@ function BiteTile({
           : 'bg-surface border-line opacity-50 cursor-default',
       ].join(' ')}
     >
-      <span className="text-xl" role="img" aria-label="bite">📚</span>
+      <NoteIcon className="w-5 h-5 flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium truncate ${done ? 'text-muted line-through' : 'text-ink'}`}>
           {title}

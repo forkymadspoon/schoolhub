@@ -69,6 +69,52 @@ router.post('/', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// PATCH /api/children/:id — general profile update (name, grade, SEN, gamification)
+router.patch('/:id', async (req, res, next) => {
+  try {
+    const userId = (req as typeof req & { userId: string }).userId;
+    const { name, grade_level, grade_band, sen_profile, gamification_enabled } = req.body as {
+      name?: string;
+      grade_level?: GradeLevel;
+      grade_band?: string;
+      sen_profile?: SENProfile;
+      gamification_enabled?: boolean;
+    };
+
+    const updates: Record<string, unknown> = {};
+    if (name !== undefined) updates.name = name;
+    if (grade_level !== undefined) updates.grade_level = grade_level;
+    if (grade_band !== undefined) updates.grade_band = grade_band;
+    if (sen_profile !== undefined) updates.sen_profile = sen_profile;
+    if (gamification_enabled !== undefined) updates.gamification_enabled = gamification_enabled;
+
+    const { data, error } = await supabaseAdmin
+      .from('children')
+      .update(updates)
+      .eq('id', req.params.id)
+      .eq('parent_id', userId)
+      .select()
+      .single();
+    if (error) throw error;
+    if (!data) { res.status(404).json({ error: 'Child not found' }); return; }
+    res.json(data);
+  } catch (e) { next(e); }
+});
+
+// DELETE /api/children/:id
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const userId = (req as typeof req & { userId: string }).userId;
+    const { error } = await supabaseAdmin
+      .from('children')
+      .delete()
+      .eq('id', req.params.id)
+      .eq('parent_id', userId);
+    if (error) throw error;
+    res.status(204).send();
+  } catch (e) { next(e); }
+});
+
 // PATCH /api/children/:id/sen-profile
 router.patch('/:id/sen-profile', async (req, res, next) => {
   try {

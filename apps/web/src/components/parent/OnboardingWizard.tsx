@@ -234,8 +234,11 @@ type WizardScreen =
   | 'sen'
   | 'activities'
   | 'wellbeing'
+  | 'psle-prep'
   | 'goals'
   | 'generate';
+
+type PsleStyle = 'light' | 'balanced' | 'sprint' | '';
 
 interface WizardState {
   childName: string;
@@ -253,6 +256,7 @@ interface WizardState {
   sleepTarget: number;
   bedtime: string;
   goals: string[];
+  psleStyle: PsleStyle;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -297,11 +301,11 @@ function formatMinutes(minutes: number): string {
 
 const SCREEN_ORDER: WizardScreen[] = [
   'welcome', 'child-info', 'school-details', 'subjects',
-  'sen', 'activities', 'wellbeing', 'goals', 'generate',
+  'sen', 'activities', 'wellbeing', 'psle-prep', 'goals', 'generate',
 ];
 
 const NUMBERED_SCREENS: WizardScreen[] = [
-  'child-info', 'school-details', 'subjects', 'sen', 'activities', 'wellbeing', 'goals',
+  'child-info', 'school-details', 'subjects', 'sen', 'activities', 'wellbeing', 'psle-prep', 'goals',
 ];
 
 const TIME_ESTIMATES: Record<WizardScreen, string> = {
@@ -312,9 +316,25 @@ const TIME_ESTIMATES: Record<WizardScreen, string> = {
   sen: '~2 min left',
   activities: '~1.5 min left',
   wellbeing: '~1 min left',
+  'psle-prep': '~45 sec left',
   goals: '~30 sec left',
   generate: 'Almost done!',
 };
+
+const PSLE_PREP_OPTIONS: { value: PsleStyle; label: string; desc: string }[] = [
+  { value: 'light',    label: 'Light & balanced', desc: 'Steady habits, plenty of rest.' },
+  { value: 'balanced', label: 'Balanced focus',   desc: 'Daily bites + weekly mock practice.' },
+  { value: 'sprint',   label: 'Full sprint',       desc: 'Higher volume, more drills.' },
+];
+
+const P6_GOALS = [
+  'Achieve PSLE target',
+  'Improve weakest subject',
+  'Reduce exam stress',
+  'Maintain wellbeing',
+  'Strengthen Chinese',
+  'Build study discipline',
+];
 
 // ─── Pill chip component ─────────────────────────────────────────────────────
 
@@ -737,6 +757,45 @@ function ScreenWellbeing({
   );
 }
 
+// ─── Screen: PSLE prep style (P6 only) ───────────────────────────────────────
+
+function ScreenPslePrep({
+  state,
+  set,
+}: {
+  state: WizardState;
+  set: (p: Partial<WizardState>) => void;
+}) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-black text-ink">PSLE prep style</h2>
+        <p className="text-sm text-muted mt-1">How intense should we plan things for the road to PSLE?</p>
+      </div>
+      <div className="flex flex-col gap-3">
+        {PSLE_PREP_OPTIONS.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => set({ psleStyle: opt.value })}
+            className={[
+              'w-full text-left px-4 py-4 rounded-2xl border-2 transition-all',
+              state.psleStyle === opt.value
+                ? 'border-primary bg-primary-soft'
+                : 'border-line bg-surface hover:border-primary/40',
+            ].join(' ')}
+          >
+            <p className={`text-sm font-bold ${state.psleStyle === opt.value ? 'text-primary' : 'text-ink'}`}>
+              {opt.label}
+            </p>
+            <p className="text-xs text-muted mt-0.5">{opt.desc}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Screen: Goals ────────────────────────────────────────────────────────────
 
 function ScreenGoals({
@@ -746,6 +805,9 @@ function ScreenGoals({
   state: WizardState;
   set: (p: Partial<WizardState>) => void;
 }) {
+  const isP6 = state.gradeLevel === 'P6';
+  const goalList = isP6 ? P6_GOALS : GOALS;
+
   function toggle(g: string) {
     if (state.goals.includes(g)) {
       set({ goals: state.goals.filter(x => x !== g) });
@@ -758,10 +820,10 @@ function ScreenGoals({
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-black text-ink">Pick your goals</h2>
-        <p className="text-sm text-muted mt-1">Choose 1–3 goals for {state.childName || 'your child'} this term.</p>
+        <p className="text-sm text-muted mt-1">Choose 1–3. We'll shape the plan around these.</p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {GOALS.map(g => {
+        {goalList.map(g => {
           const selected = state.goals.includes(g);
           const maxed = !selected && state.goals.length >= 3;
           return (
@@ -896,6 +958,7 @@ export function OnboardingWizard() {
     sleepTarget: 9,
     bedtime: '21:00',
     goals: [],
+    psleStyle: '',
   });
 
   function set(patch: Partial<WizardState>) {
@@ -910,24 +973,29 @@ export function OnboardingWizard() {
     });
   }
 
+  const isP6 = state.gradeLevel === 'P6';
   const currentIdx = SCREEN_ORDER.indexOf(screen);
-  const numberedIdx = NUMBERED_SCREENS.indexOf(screen);
+  const visibleNumbered = NUMBERED_SCREENS.filter(s => s !== 'psle-prep' || isP6);
+  const numberedIdx = visibleNumbered.indexOf(screen);
   const isNumbered = numberedIdx !== -1;
-  const totalSteps = NUMBERED_SCREENS.length;
+  const totalSteps = visibleNumbered.length;
 
   function goNext() {
-    const next = SCREEN_ORDER[currentIdx + 1];
+    let next = SCREEN_ORDER[currentIdx + 1];
+    if (next === 'psle-prep' && !isP6) next = SCREEN_ORDER[currentIdx + 2];
     if (next) setScreen(next);
   }
 
   function goBack() {
-    const prev = SCREEN_ORDER[currentIdx - 1];
+    let prev = SCREEN_ORDER[currentIdx - 1];
+    if (prev === 'psle-prep' && !isP6) prev = SCREEN_ORDER[currentIdx - 2];
     if (prev) setScreen(prev);
   }
 
   function canAdvance(): boolean {
     if (screen === 'child-info') return state.childName.trim().length > 0 && state.gradeLevel !== '';
     if (screen === 'subjects') return state.subjects.length > 0;
+    if (screen === 'psle-prep') return state.psleStyle !== '';
     if (screen === 'goals') return state.goals.length > 0;
     return true;
   }
@@ -1005,6 +1073,7 @@ export function OnboardingWizard() {
         {screen === 'sen' && <ScreenSEN state={state} set={set} />}
         {screen === 'activities' && <ScreenActivities state={state} set={set} />}
         {screen === 'wellbeing' && <ScreenWellbeing state={state} set={set} />}
+        {screen === 'psle-prep' && <ScreenPslePrep state={state} set={set} />}
         {screen === 'goals' && <ScreenGoals state={state} set={set} />}
         {screen === 'generate' && <ScreenGenerate state={state} error={error} />}
 

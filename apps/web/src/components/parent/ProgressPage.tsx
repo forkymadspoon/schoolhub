@@ -3,6 +3,8 @@ import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { useSchedule } from '../../hooks/useSchedule';
 import { useStats } from '../../hooks/useStats';
+import { SubjectIcon } from '../shared/SubjectIcon';
+import FireIcon from '../../assets/icons/misc/fire.svg?react';
 
 const SUBJECTS = ['English', 'Mathematics', 'Science'];
 
@@ -12,11 +14,6 @@ const BADGE_TIERS = [
   { tier: 'gold', label: '100 bites', threshold: 100 },
 ];
 
-const SUBJECT_EMOJIS: Record<string, string> = {
-  English: '📖',
-  Mathematics: '🔢',
-  Science: '🔬',
-};
 
 const TIER_COLORS: Record<string, string> = {
   bronze: 'bg-[#F4C68020] border-[#F4C680]',
@@ -93,14 +90,14 @@ export function ProgressPage() {
           <p className="text-3xl font-extrabold text-ink leading-none">
             {statsLoading ? '—' : (stats?.streak ?? 0)}
           </p>
-          <p className="text-muted text-xs mt-0.5">🔥 day streak</p>
+          <p className="text-muted text-xs mt-0.5 inline-flex items-center gap-1"><FireIcon className="w-3.5 h-3.5" /> day streak</p>
         </div>
         <div className="w-px h-10 bg-line" />
         <div className="text-center flex-1">
           <p className="text-3xl font-extrabold text-ink leading-none">
             {statsLoading ? '—' : (stats?.total_xp ?? 0)}
           </p>
-          <p className="text-muted text-xs mt-0.5">⚡ total XP</p>
+          <p className="text-muted text-xs mt-0.5">total XP</p>
         </div>
       </div>
 
@@ -110,7 +107,7 @@ export function ProgressPage() {
           <h3 className="text-ink font-semibold text-sm">Badges</h3>
           {recentBadge && (
             <span className="text-muted text-xs">
-              Latest: {SUBJECT_EMOJIS[recentBadge.subject] ?? '📚'} {recentBadge.subject} {recentBadge.tier}
+              <span className="inline-flex items-center gap-1">Latest: <SubjectIcon subject={recentBadge.subject} className="w-3.5 h-3.5 inline" /> {recentBadge.subject} {recentBadge.tier}</span>
             </span>
           )}
         </div>
@@ -126,7 +123,7 @@ export function ProgressPage() {
                     unlocked ? TIER_COLORS[tier] : 'opacity-40 bg-primary-soft/30 border-line'
                   }`}
                 >
-                  <span className="text-2xl">{SUBJECT_EMOJIS[subject] ?? '📚'}</span>
+                  <SubjectIcon subject={subject} className="w-6 h-6" />
                   <p className="text-ink text-[10px] font-semibold text-center capitalize">{tier}</p>
                   <p className="text-muted text-[9px] text-center">{subject}</p>
                 </div>

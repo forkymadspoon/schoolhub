@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import type { UploadFileType, Upload, UploadError } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { supabase } from '../../services/supabase';
+import PaperClipIcon from '../../assets/icons/interface/paper-clip.svg?react';
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') ?? '';
 
@@ -55,10 +56,10 @@ interface LocalUpload {
 }
 
 const ALLOWED_EXTENSIONS: Record<UploadFileType, string[]> = {
-  spelling_list: ['.csv', '.txt', '.xlsx'],
-  assessment_dates: ['.pdf', '.ics'],
-  school_calendar: ['.ics', '.pdf'],
-  moe_syllabus: ['.pdf'],
+  spelling_list:    ['.csv', '.txt', '.xlsx'],
+  assessment_dates: ['.pdf', '.ics', '.jpg', '.jpeg', '.png'],
+  school_calendar:  ['.ics', '.pdf', '.jpg', '.jpeg', '.png'],
+  moe_syllabus:     ['.pdf'],
 };
 
 const FILE_TYPE_LABELS: Record<UploadFileType, string> = {
@@ -256,9 +257,17 @@ export function DataUpload({ childId, allowedTypes = ALL_TYPES, onComplete }: Pr
     handleFiles(e.dataTransfer.files);
   }
 
+  const MIME_MAP: Record<string, string> = {
+    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
+    '.pdf': 'application/pdf', '.ics': 'text/calendar',
+    '.csv': 'text/csv', '.txt': 'text/plain',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  };
   const acceptAttr = allowedTypes
     .flatMap(t => ALLOWED_EXTENSIONS[t])
     .filter((v, i, a) => a.indexOf(v) === i)
+    .flatMap(ext => [ext, MIME_MAP[ext] ?? ''])
+    .filter(Boolean)
     .join(',');
 
   const descriptionTypes = allowedTypes
@@ -283,7 +292,9 @@ export function DataUpload({ childId, allowedTypes = ALL_TYPES, onComplete }: Pr
         onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
         aria-label="Upload file"
       >
-        <div className="text-3xl mb-2" aria-hidden="true">📎</div>
+        <div className="flex justify-center mb-2">
+          <PaperClipIcon className="w-8 h-8 opacity-30" />
+        </div>
         <p className="text-sm font-medium text-ink">Drop files here or tap to browse</p>
         <p className="text-xs text-muted mt-1">{descriptionTypes}</p>
         <input

@@ -1,7 +1,10 @@
+import { SubjectIcon } from '../shared/SubjectIcon';
+import FireIcon from '../../assets/icons/misc/fire.svg?react';
+
 const BADGES = [
-  { subject: 'English',     tier: 'bronze', emoji: '📖', done: 0, target: 10 },
-  { subject: 'Mathematics', tier: 'bronze', emoji: '🔢', done: 0, target: 10 },
-  { subject: 'Science',     tier: 'bronze', emoji: '🔬', done: 0, target: 10 },
+  { subject: 'English',     tier: 'bronze', done: 0, target: 10 },
+  { subject: 'Mathematics', tier: 'bronze', done: 0, target: 10 },
+  { subject: 'Science',     tier: 'bronze', done: 0, target: 10 },
 ];
 
 export function StatsPage() {
@@ -16,7 +19,7 @@ export function StatsPage() {
         <div className="w-px bg-line self-stretch" />
         <div className="flex-1 text-center">
           <p className="text-3xl font-extrabold text-ink">0</p>
-          <p className="text-muted text-xs">day streak 🔥</p>
+          <p className="text-muted text-xs inline-flex items-center gap-1">day streak <FireIcon className="w-3.5 h-3.5" /></p>
         </div>
         <div className="w-px bg-line self-stretch" />
         <div className="flex-1 text-center">
@@ -31,7 +34,7 @@ export function StatsPage() {
         <div className="flex flex-col gap-3">
           {BADGES.map((b, i) => (
             <div key={i} className="flex items-center gap-3">
-              <span className="text-2xl leading-none opacity-40">{b.emoji}</span>
+              <SubjectIcon subject={b.subject} className="w-6 h-6 opacity-40" />
               <div className="flex-1">
                 <div className="flex justify-between mb-1">
                   <p className="text-ink text-sm font-medium">{b.subject} — {b.tier}</p>

@@ -174,7 +174,6 @@ export function LandingPage() {
           <div className="grid grid-cols-1 tablet:grid-cols-2 desktop:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
               <div key={f.num} className={`card card-lift lp-reveal lp-d${i + 1} flex flex-col`}>
-                <div className="text-[11px] font-bold tracking-[2px] uppercase text-primary mb-3.5">{f.num}</div>
                 <div className="w-12 h-12 rounded-[14px] bg-primary-soft border border-primary/20 flex items-center justify-center mb-4">
                   <f.Icon className="w-7 h-7" />
                 </div>
@@ -201,7 +200,6 @@ export function LandingPage() {
             {STEPS.map((s, i) => (
               <div key={s.n} className={`card text-center py-10 px-6 lp-reveal lp-d${i + 1}`}>
                 <div className="w-12 h-12 rounded-full bg-primary text-white text-lg font-black flex items-center justify-center mx-auto mb-4" style={{ boxShadow: '0 4px 16px rgba(25,142,204,0.35)' }}>{s.n}</div>
-                <s.Icon className="w-10 h-10 mx-auto mb-3.5" />
                 <h3 className="text-[17px] font-extrabold text-ink mb-2.5">{s.title}</h3>
                 <p className="text-sm text-muted leading-[1.65] font-medium">{s.body}</p>
               </div>

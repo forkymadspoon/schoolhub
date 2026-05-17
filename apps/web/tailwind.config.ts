@@ -15,9 +15,9 @@ const config: Config = {
 
         // Primary — teal-blue  hsl(201 78% 45%)
         primary: {
-          DEFAULT: '#198ECC',
-          soft:    '#D6EBF5',   // hsl(200 60% 90%)
-          dark:    '#146E9F',   // hsl(201 78% 35%) — button border
+          DEFAULT: '#0070D1',
+          soft:    '#E8F1FB',
+          dark:    '#0064B7',
         },
 
         // Accent — soft cyan  hsl(188 70% 88%)

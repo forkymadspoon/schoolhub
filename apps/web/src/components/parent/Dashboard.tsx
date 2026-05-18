@@ -63,7 +63,7 @@ function ChildSwitcherDropdown({
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-primary text-white text-[11px] font-semibold hover:bg-primary-dark transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill border border-line bg-surface text-ink text-[11px] font-semibold hover:bg-primary-soft/40 transition-colors"
       >
         <span>{CHILD_EMOJIS[Math.max(activeIdx, 0) % CHILD_EMOJIS.length]}</span>
         <span>{activeChild?.name ?? 'Select child'}</span>
@@ -455,14 +455,12 @@ export function Dashboard() {
 
       {/* Desktop header */}
       <header className="hidden md:flex items-center justify-between px-8 border-b border-line bg-surface sticky top-0 z-10 h-[90px]">
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <p className="text-muted text-xs">
             {new Date().toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
-          <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
             <ChildSwitcherDropdown
               allChildren={allChildren}
               activeChild={activeChild}
@@ -473,18 +471,18 @@ export function Dashboard() {
               <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
             )}
           </div>
-          <button
-            type="button"
-            onClick={() => setShowNotifSettings(true)}
-            className="relative w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
-            aria-label="Notifications"
-          >
-            <BellIcon className="w-3.5 h-3.5 text-muted" />
-            {openSignals > 0 && (
-              <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
-            )}
-          </button>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowNotifSettings(true)}
+          className="relative w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+          aria-label="Notifications"
+        >
+          <BellIcon className="w-3.5 h-3.5 text-muted" />
+          {openSignals > 0 && (
+            <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
+          )}
+        </button>
       </header>
 
       {/* Mobile child pills */}

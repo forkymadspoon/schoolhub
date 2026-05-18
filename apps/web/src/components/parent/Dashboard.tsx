@@ -12,16 +12,18 @@ import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { WellbeingPanel } from './WellbeingPanel';
 import { NotificationSettings } from './NotificationSettings';
 import { DataUpload } from './DataUpload';
-import CalendarIcon  from '../../assets/icons/interface/calendar.svg?react';
-import ChecklistIcon from '../../assets/icons/interface/checklist.svg?react';
-import BellIcon      from '../../assets/icons/interface/bell.svg?react';
-import TargetIcon    from '../../assets/icons/interface/target.svg?react';
-import TreeIcon      from '../../assets/icons/interface/tree.svg?react';
-import HeartIcon     from '../../assets/icons/interface/heart.svg?react';
-import TickIcon      from '../../assets/icons/interface/tick.svg?react';
-import SyncIcon      from '../../assets/icons/interface/sync.svg?react';
-import CautionIcon   from '../../assets/icons/interface/caution.svg?react';
-import BookmarkIcon  from '../../assets/icons/interface/bookmark.svg?react';
+import CalendarIcon   from '../../assets/icons/interface/calendar.svg?react';
+import ChecklistIcon  from '../../assets/icons/interface/checklist.svg?react';
+import BellIcon       from '../../assets/icons/interface/bell.svg?react';
+import TargetIcon     from '../../assets/icons/interface/target.svg?react';
+import TreeIcon       from '../../assets/icons/interface/tree.svg?react';
+import HeartIcon      from '../../assets/icons/interface/heart.svg?react';
+import TickIcon       from '../../assets/icons/interface/tick.svg?react';
+import SyncIcon       from '../../assets/icons/interface/sync.svg?react';
+import CautionIcon    from '../../assets/icons/interface/caution.svg?react';
+import BookmarkIcon   from '../../assets/icons/interface/bookmark.svg?react';
+import UploadIcon     from '../../assets/icons/interface/upload.svg?react';
+import ArrowDownIcon  from '../../assets/icons/interface/arrow-down.svg?react';
 import { getNextBreak, formatBreakDate } from '../../data/singaporeCalendar';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -40,6 +42,78 @@ function greeting() {
 
 function pct(done: number, total: number) {
   return total > 0 ? Math.round((done / total) * 100) : 0;
+}
+
+// ── ChildSwitcherDropdown ─────────────────────────────────────────────────────
+
+function ChildSwitcherDropdown({
+  allChildren,
+  activeChild,
+  onSwitch,
+  onAddChild,
+}: {
+  allChildren: Child[];
+  activeChild: Child | null;
+  onSwitch: (id: string) => void;
+  onAddChild: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const activeIdx = allChildren.findIndex(c => c.id === activeChild?.id);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
+      >
+        <span>{CHILD_EMOJIS[Math.max(activeIdx, 0) % CHILD_EMOJIS.length]}</span>
+        <span>{activeChild?.name ?? 'Select child'}</span>
+        <span className="opacity-70 font-normal text-xs">{activeChild?.grade_level}</span>
+        <ArrowDownIcon className={`w-3 h-3 opacity-80 ml-0.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 top-full mt-2 z-50 bg-surface rounded-card shadow-card border border-line w-52 py-1.5 flex flex-col">
+            <p className="text-muted text-[10px] font-bold uppercase tracking-widest px-3 pt-1 pb-1.5">Switch child</p>
+            {allChildren.map((child, i) => (
+              <button
+                key={child.id}
+                type="button"
+                onClick={() => { onSwitch(child.id); setOpen(false); }}
+                className="flex items-center gap-2.5 px-3 py-2 hover:bg-primary-soft/40 transition-colors text-left"
+              >
+                <div className={`w-7 h-7 rounded-full ${AVATAR_BG[i % 4]} flex items-center justify-center flex-shrink-0`}>
+                  <span className={`text-xs font-bold ${AVATAR_TEXT[i % 4]}`}>{child.name.charAt(0)}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-ink text-sm font-medium truncate">{child.name}</p>
+                  <p className="text-muted text-[10px]">{child.grade_level}</p>
+                </div>
+                {activeChild?.id === child.id && (
+                  <TickIcon className="w-4 h-4 text-primary flex-shrink-0" />
+                )}
+              </button>
+            ))}
+            <div className="border-t border-line mt-1 pt-1">
+              <button
+                type="button"
+                onClick={() => { onAddChild(); setOpen(false); }}
+                className="flex items-center gap-2.5 px-3 py-2 w-full hover:bg-primary-soft/40 transition-colors"
+              >
+                <div className="w-7 h-7 rounded-full border border-dashed border-line flex items-center justify-center flex-shrink-0">
+                  <span className="text-muted text-base leading-none">+</span>
+                </div>
+                <p className="text-muted text-sm">Add child</p>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 // ── NextBreakDashCard ─────────────────────────────────────────────────────────
@@ -368,56 +442,65 @@ export function Dashboard() {
       <header className="md:hidden bg-surface border-b border-line px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <img src="/logo.svg" alt="SchoolHub" className="w-32 h-auto" />
         <div className="flex items-center gap-2">
-          <button type="button" onClick={() => setShowNotifSettings(true)}
-            className="btn-secondary text-xs px-3 py-2">Notifications</button>
-          <button type="button" onClick={() => setShowUpload(true)}
-            className="btn-secondary text-xs px-3 py-2">Upload</button>
+          <button
+            type="button"
+            onClick={() => setShowNotifSettings(true)}
+            className="relative w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            aria-label="Notifications"
+          >
+            <BellIcon className="w-4 h-4 text-muted" />
+            {openSignals > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-game-orange border-2 border-surface" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowUpload(true)}
+            className="w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            aria-label="Upload files"
+          >
+            <UploadIcon className="w-4 h-4 text-muted" />
+          </button>
         </div>
       </header>
 
       {/* Desktop header */}
       <header className="hidden md:flex items-center justify-between px-8 border-b border-line bg-surface sticky top-0 z-10 h-[90px]">
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <p className="text-muted text-xs">
             {new Date().toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
-            <div className="flex items-center gap-2 flex-wrap">
-              {allChildren.map((child, i) => (
-                <button
-                  key={child.id}
-                  type="button"
-                  onClick={() => handleChildSwitch(child.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors ${
-                    activeChild?.id === child.id
-                      ? 'bg-primary text-white'
-                      : 'bg-primary-soft text-primary hover:bg-primary/20'
-                  }`}
-                >
-                  <span>{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
-                  <span>{child.name}</span>
-                  <span className="opacity-70 font-normal">{child.grade_level}</span>
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold border border-dashed border-line text-muted hover:border-primary hover:text-primary transition-colors min-h-0"
-              >
-                + Add child
-              </button>
-            </div>
-          </div>
+          <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
         </div>
         <div className="flex items-center gap-3">
           {activeChild && (
             <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
           )}
-          <button type="button" onClick={() => setShowNotifSettings(true)}
-            className="btn-secondary text-sm px-4 py-2">Notifications</button>
-          <button type="button" onClick={() => setShowUpload(true)}
-            className="btn-secondary text-sm px-4 py-2">Upload files</button>
+          <ChildSwitcherDropdown
+            allChildren={allChildren}
+            activeChild={activeChild}
+            onSwitch={handleChildSwitch}
+            onAddChild={() => navigate('/onboarding', { state: { from: location.pathname } })}
+          />
+          <button
+            type="button"
+            onClick={() => setShowNotifSettings(true)}
+            className="relative w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            aria-label="Notifications"
+          >
+            <BellIcon className="w-4 h-4 text-muted" />
+            {openSignals > 0 && (
+              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-game-orange border-2 border-surface" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowUpload(true)}
+            className="w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            aria-label="Upload files"
+          >
+            <UploadIcon className="w-4 h-4 text-muted" />
+          </button>
         </div>
       </header>
 

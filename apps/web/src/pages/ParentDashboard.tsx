@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect, type ReactNode } from 'react';
 import { ParentBottomNav } from '../components/parent/ParentBottomNav';
 import { ParentSidebar } from '../components/parent/ParentSidebar';
@@ -36,12 +36,15 @@ function AlphaBanner() {
 
 export function ParentDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const skipRedirect = (location.state as { skipOnboardingRedirect?: boolean } | null)?.skipOnboardingRedirect;
 
   useEffect(() => {
+    if (skipRedirect) return;
     api.get<Child[]>('/children')
       .then(children => { if (children.length === 0) navigate('/onboarding', { replace: true }); })
       .catch(() => null);
-  }, [navigate]);
+  }, [navigate, skipRedirect]);
 
   return (
     <div className="flex flex-col min-h-screen bg-bg">

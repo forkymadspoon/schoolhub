@@ -1056,7 +1056,7 @@ export function OnboardingWizard() {
               <span className="text-xs text-muted">{TIME_ESTIMATES[screen]}</span>
               <button
                 type="button"
-                onClick={() => navigate(dismissTarget)}
+                onClick={() => navigate(dismissTarget, { state: { skipOnboardingRedirect: true } })}
                 className="text-xs text-muted hover:text-ink underline transition-colors"
               >
                 Save & exit
@@ -1076,7 +1076,7 @@ export function OnboardingWizard() {
 
       {/* Card */}
       <div className="w-full max-w-md rounded-2xl bg-surface shadow-card p-6">
-        {screen === 'welcome' && <ScreenWelcome onStart={goNext} onDismiss={() => navigate(dismissTarget)} />}
+        {screen === 'welcome' && <ScreenWelcome onStart={goNext} onDismiss={() => navigate(dismissTarget, { state: { skipOnboardingRedirect: true } })} />}
         {screen === 'child-info' && (
           <ScreenChildInfo state={state} onGradeChange={handleGradeChange} set={set} />
         )}

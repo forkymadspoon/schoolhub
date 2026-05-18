@@ -12,13 +12,24 @@ interface Props {
 
 // ─── Grade-appropriate milestone fallback ─────────────────────────────────────
 
+// Grades with no formal SA/WA assessments
+const NO_EXAM_GRADES: GradeLevel[] = ['K2', 'P1', 'P2'];
+
 function nextMilestone(grade: GradeLevel): { label: string; date: Date } {
   const now = new Date();
   const y = now.getFullYear();
 
   if (grade === 'K2') {
-    // P1 intake: first school day of next year
+    // Count down to P1 intake (first school day of next calendar year)
     return { label: 'P1 intake', date: new Date(y + 1, 0, 2) };
+  }
+  if (grade === 'P1' || grade === 'P2') {
+    // No SA/WA — show next school holiday instead
+    const midYear = new Date(y, 5, 1);   // ~Jun 1 mid-year holidays
+    if (midYear > now) return { label: 'Mid-year holidays', date: midYear };
+    const yearEnd = new Date(y, 10, 21); // ~Nov 21 year-end holidays
+    if (yearEnd > now) return { label: 'Year-end holidays', date: yearEnd };
+    return { label: 'Mid-year holidays', date: new Date(y + 1, 5, 1) };
   }
   if (grade === 'P6') {
     return { label: 'PSLE', date: new Date(y, 9, 1) }; // Oct 1
@@ -28,12 +39,11 @@ function nextMilestone(grade: GradeLevel): { label: string; date: Date } {
     if (prelim > now) return { label: 'Prelim', date: prelim };
     return { label: 'SA2', date: new Date(y, 9, 15) };
   }
-  // P1–P4: SA1 (June) then SA2 (Oct)
+  // P3–P4: SA1 (June) then SA2 (Oct)
   const sa1 = new Date(y, 5, 2);   // Jun 2
   if (sa1 > now) return { label: 'SA1', date: sa1 };
   const sa2 = new Date(y, 9, 15);  // Oct 15
   if (sa2 > now) return { label: 'SA2', date: sa2 };
-  // Wrap to next year's SA1
   return { label: 'SA1', date: new Date(y + 1, 5, 2) };
 }
 
@@ -72,9 +82,15 @@ export function ExamCountdownWidget({ childId, gradeLevel, canHide = false }: Pr
 
   if (hidden) return null;
 
-  // If the API returned nothing and we know the grade, synthesise a milestone
-  const displayItems: ExamCountdownItem[] = items.length > 0
-    ? items.map(item => ({ ...item, label: fixLabel(item.label, gradeLevel) }))
+  // Strip SA/WA labels for grades that don't have formal assessments
+  const SA_LABELS = /^(SA1|SA2|WA1|WA2|WA3|WA4)$/i;
+  const filteredItems = gradeLevel && NO_EXAM_GRADES.includes(gradeLevel)
+    ? items.filter(item => !SA_LABELS.test(item.label.trim()))
+    : items;
+
+  // If the API returned nothing (or all items were filtered) and we know the grade, synthesise a milestone
+  const displayItems: ExamCountdownItem[] = filteredItems.length > 0
+    ? filteredItems.map(item => ({ ...item, label: fixLabel(item.label, gradeLevel) }))
     : gradeLevel
       ? (() => {
           const { label, date } = nextMilestone(gradeLevel);

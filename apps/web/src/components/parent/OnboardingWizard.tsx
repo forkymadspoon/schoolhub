@@ -336,6 +336,15 @@ const P6_GOALS = [
   'Build study discipline',
 ];
 
+const K2_GOALS = [
+  'Build daily reading habit',
+  'Curiosity & play',
+  'Better handwriting',
+  'Strengthen Chinese',
+  'Build morning routine',
+  'P1 readiness confidence',
+];
+
 // ─── Pill chip component ─────────────────────────────────────────────────────
 
 function Chip({
@@ -816,7 +825,8 @@ function ScreenGoals({
   set: (p: Partial<WizardState>) => void;
 }) {
   const isP6 = state.gradeLevel === 'P6';
-  const goalList = isP6 ? P6_GOALS : GOALS;
+  const isK2 = state.gradeLevel === 'K2';
+  const goalList = isP6 ? P6_GOALS : isK2 ? K2_GOALS : GOALS;
 
   function toggle(g: string) {
     if (state.goals.includes(g)) {
@@ -986,21 +996,34 @@ export function OnboardingWizard() {
   }
 
   const isP6 = state.gradeLevel === 'P6';
+  const isK2 = state.gradeLevel === 'K2';
   const currentIdx = SCREEN_ORDER.indexOf(screen);
-  const visibleNumbered = NUMBERED_SCREENS.filter(s => s !== 'psle-prep' || isP6);
+  const visibleNumbered = NUMBERED_SCREENS.filter(s => {
+    if (s === 'psle-prep') return isP6;
+    if (s === 'school-details') return !isK2;
+    return true;
+  });
   const numberedIdx = visibleNumbered.indexOf(screen);
   const isNumbered = numberedIdx !== -1;
   const totalSteps = visibleNumbered.length;
 
+  function skipScreen(s: WizardScreen): boolean {
+    if (s === 'psle-prep') return !isP6;
+    if (s === 'school-details') return isK2;
+    return false;
+  }
+
   function goNext() {
-    let next = SCREEN_ORDER[currentIdx + 1];
-    if (next === 'psle-prep' && !isP6) next = SCREEN_ORDER[currentIdx + 2];
+    let idx = currentIdx + 1;
+    while (idx < SCREEN_ORDER.length && skipScreen(SCREEN_ORDER[idx]!)) idx++;
+    const next = SCREEN_ORDER[idx];
     if (next) setScreen(next);
   }
 
   function goBack() {
-    let prev = SCREEN_ORDER[currentIdx - 1];
-    if (prev === 'psle-prep' && !isP6) prev = SCREEN_ORDER[currentIdx - 2];
+    let idx = currentIdx - 1;
+    while (idx >= 0 && skipScreen(SCREEN_ORDER[idx]!)) idx--;
+    const prev = SCREEN_ORDER[idx];
     if (prev) setScreen(prev);
   }
 

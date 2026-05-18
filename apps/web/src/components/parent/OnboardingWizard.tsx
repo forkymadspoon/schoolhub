@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { GradeLevel, SENProfile, Subject } from '@schoolhub/types';
 import { gradeBandForLevel } from '@schoolhub/types';
 import { api } from '../../services/api';
@@ -948,6 +948,8 @@ function SummaryRow({ icon, label, value }: { icon: string; label: string; value
 
 export function OnboardingWizard() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const dismissTarget = (location.state as { from?: string } | null)?.from ?? '/';
   const [screen, setScreen] = useState<WizardScreen>('welcome');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -1054,7 +1056,7 @@ export function OnboardingWizard() {
               <span className="text-xs text-muted">{TIME_ESTIMATES[screen]}</span>
               <button
                 type="button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(dismissTarget)}
                 className="text-xs text-muted hover:text-ink underline transition-colors"
               >
                 Save & exit
@@ -1074,7 +1076,7 @@ export function OnboardingWizard() {
 
       {/* Card */}
       <div className="w-full max-w-md rounded-2xl bg-surface shadow-card p-6">
-        {screen === 'welcome' && <ScreenWelcome onStart={goNext} onDismiss={() => navigate('/')} />}
+        {screen === 'welcome' && <ScreenWelcome onStart={goNext} onDismiss={() => navigate(dismissTarget)} />}
         {screen === 'child-info' && (
           <ScreenChildInfo state={state} onGradeChange={handleGradeChange} set={set} />
         )}

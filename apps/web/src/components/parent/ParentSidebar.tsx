@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
@@ -19,6 +19,7 @@ const navItems = [
 
 export function ParentSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [children, setChildren] = useState<Child[]>([]);
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
@@ -56,7 +57,7 @@ export function ParentSidebar() {
           ))}
           <button
             type="button"
-            onClick={() => navigate('/onboarding')}
+            onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
             className="text-xs font-semibold px-3 py-1.5 rounded-pill transition-colors min-h-0 min-w-0 border border-dashed border-line text-muted hover:border-primary hover:text-primary"
           >
             + Add

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { useSchedule } from '../../hooks/useSchedule';
@@ -128,6 +128,7 @@ function MiniCalendar({ biteDates, selected, onSelect }: {
 
 export function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const today = new Date().toISOString().slice(0, 10);
 
   const [activeChild, setActiveChild]         = useState<Child | null>(null);
@@ -252,7 +253,7 @@ export function Dashboard() {
               ))}
               <button
                 type="button"
-                onClick={() => navigate('/onboarding')}
+                onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors border border-dashed border-line text-muted hover:border-primary hover:text-primary min-h-0"
               >
                 + Add child
@@ -287,7 +288,7 @@ export function Dashboard() {
         ))}
         <button
           type="button"
-          onClick={() => navigate('/onboarding')}
+          onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
           className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors border border-dashed border-line text-muted hover:border-primary hover:text-primary min-h-0"
         >
           + Add child

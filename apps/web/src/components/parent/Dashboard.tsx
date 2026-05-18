@@ -65,7 +65,7 @@ function ChildSwitcherDropdown({
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill bg-primary text-white text-[11px] font-semibold hover:bg-primary-dark transition-colors"
       >
         <span>{CHILD_EMOJIS[Math.max(activeIdx, 0) % CHILD_EMOJIS.length]}</span>
         <span>{activeChild?.name ?? 'Select child'}</span>
@@ -445,21 +445,21 @@ export function Dashboard() {
           <button
             type="button"
             onClick={() => setShowNotifSettings(true)}
-            className="relative w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            className="relative w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
             aria-label="Notifications"
           >
-            <BellIcon className="w-4 h-4 text-muted" />
+            <BellIcon className="w-3.5 h-3.5 text-muted" />
             {openSignals > 0 && (
-              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-game-orange border-2 border-surface" />
+              <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
             )}
           </button>
           <button
             type="button"
             onClick={() => setShowUpload(true)}
-            className="w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            className="w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
             aria-label="Upload files"
           >
-            <UploadIcon className="w-4 h-4 text-muted" />
+            <UploadIcon className="w-3.5 h-3.5 text-muted" />
           </button>
         </div>
       </header>
@@ -472,34 +472,36 @@ export function Dashboard() {
           </p>
           <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
         </div>
-        <div className="flex items-center gap-3">
-          {activeChild && (
-            <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
-          )}
-          <ChildSwitcherDropdown
-            allChildren={allChildren}
-            activeChild={activeChild}
-            onSwitch={handleChildSwitch}
-            onAddChild={() => navigate('/onboarding', { state: { from: location.pathname } })}
-          />
+        <div className="flex items-center gap-2.5">
+          <div className="flex flex-col items-end gap-1">
+            <ChildSwitcherDropdown
+              allChildren={allChildren}
+              activeChild={activeChild}
+              onSwitch={handleChildSwitch}
+              onAddChild={() => navigate('/onboarding', { state: { from: location.pathname } })}
+            />
+            {activeChild && (
+              <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
+            )}
+          </div>
           <button
             type="button"
             onClick={() => setShowNotifSettings(true)}
-            className="relative w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            className="relative w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
             aria-label="Notifications"
           >
-            <BellIcon className="w-4 h-4 text-muted" />
+            <BellIcon className="w-3.5 h-3.5 text-muted" />
             {openSignals > 0 && (
-              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-game-orange border-2 border-surface" />
+              <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
             )}
           </button>
           <button
             type="button"
             onClick={() => setShowUpload(true)}
-            className="w-9 h-9 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            className="w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
             aria-label="Upload files"
           >
-            <UploadIcon className="w-4 h-4 text-muted" />
+            <UploadIcon className="w-3.5 h-3.5 text-muted" />
           </button>
         </div>
       </header>

@@ -11,7 +11,6 @@ import { ExamCountdownWidget } from '../shared/ExamCountdownWidget';
 import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { WellbeingPanel } from './WellbeingPanel';
 import { NotificationSettings } from './NotificationSettings';
-import { DataUpload } from './DataUpload';
 import CalendarIcon   from '../../assets/icons/interface/calendar.svg?react';
 import ChecklistIcon  from '../../assets/icons/interface/checklist.svg?react';
 import BellIcon       from '../../assets/icons/interface/bell.svg?react';
@@ -22,7 +21,6 @@ import TickIcon       from '../../assets/icons/interface/tick.svg?react';
 import SyncIcon       from '../../assets/icons/interface/sync.svg?react';
 import CautionIcon    from '../../assets/icons/interface/caution.svg?react';
 import BookmarkIcon   from '../../assets/icons/interface/bookmark.svg?react';
-import UploadIcon     from '../../assets/icons/interface/upload.svg?react';
 import ArrowDownIcon  from '../../assets/icons/interface/arrow-down.svg?react';
 import { getNextBreak, formatBreakDate } from '../../data/singaporeCalendar';
 
@@ -386,7 +384,6 @@ export function Dashboard() {
   const [activeChild, setActiveChild]             = useState<Child | null>(null);
   const [allChildren, setAllChildren]             = useState<Child[]>([]);
   const [showRegen, setShowRegen]                 = useState(false);
-  const [showUpload, setShowUpload]               = useState(false);
   const [showWellbeing, setShowWellbeing]         = useState(false);
   const [showNotifSettings, setShowNotifSettings] = useState(false);
 
@@ -445,21 +442,13 @@ export function Dashboard() {
           <button
             type="button"
             onClick={() => setShowNotifSettings(true)}
-            className="relative w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            className="relative w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
             aria-label="Notifications"
           >
             <BellIcon className="w-3.5 h-3.5 text-muted" />
             {openSignals > 0 && (
               <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
             )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowUpload(true)}
-            className="w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
-            aria-label="Upload files"
-          >
-            <UploadIcon className="w-3.5 h-3.5 text-muted" />
           </button>
         </div>
       </header>
@@ -487,21 +476,13 @@ export function Dashboard() {
           <button
             type="button"
             onClick={() => setShowNotifSettings(true)}
-            className="relative w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
+            className="relative w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
             aria-label="Notifications"
           >
             <BellIcon className="w-3.5 h-3.5 text-muted" />
             {openSignals > 0 && (
               <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
             )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowUpload(true)}
-            className="w-7 h-7 rounded-full border border-line bg-surface flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
-            aria-label="Upload files"
-          >
-            <UploadIcon className="w-3.5 h-3.5 text-muted" />
           </button>
         </div>
       </header>
@@ -678,26 +659,8 @@ export function Dashboard() {
         />
       )}
 
-      {showUpload && activeChild && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/40"
-          onClick={() => setShowUpload(false)}
-        >
-          <div
-            className="bg-surface rounded-t-card sm:rounded-card shadow-card w-full max-w-lg mx-0 sm:mx-4 p-6"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-ink font-semibold text-lg">Upload files</h2>
-              <button type="button" onClick={() => setShowUpload(false)}
-                className="text-muted hover:text-ink text-xl" aria-label="Close">×</button>
-            </div>
-            <DataUpload childId={activeChild.id} onComplete={() => setShowUpload(false)} />
-          </div>
-        </div>
-      )}
 
-      {showWellbeing && activeChild && (
+{showWellbeing && activeChild && (
         <WellbeingPanel
           childId={activeChild.id}
           childName={activeChild.name}

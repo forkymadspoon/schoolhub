@@ -365,9 +365,19 @@ function Chip({
 
 // ─── Screen: Welcome ─────────────────────────────────────────────────────────
 
-function ScreenWelcome({ onStart }: { onStart: () => void }) {
+function ScreenWelcome({ onStart, onDismiss }: { onStart: () => void; onDismiss: () => void }) {
   return (
     <div className="space-y-6 py-2">
+      <div className="flex justify-end -mt-1 -mr-1">
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="w-7 h-7 flex items-center justify-center rounded-full text-muted hover:text-ink hover:bg-line transition-colors text-lg leading-none"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
       <div className="text-center">
         <div className="text-5xl mb-4">☕</div>
         <h1 className="text-3xl font-black text-ink leading-tight">
@@ -1064,7 +1074,7 @@ export function OnboardingWizard() {
 
       {/* Card */}
       <div className="w-full max-w-md rounded-2xl bg-surface shadow-card p-6">
-        {screen === 'welcome' && <ScreenWelcome onStart={goNext} />}
+        {screen === 'welcome' && <ScreenWelcome onStart={goNext} onDismiss={() => navigate('/')} />}
         {screen === 'child-info' && (
           <ScreenChildInfo state={state} onGradeChange={handleGradeChange} set={set} />
         )}

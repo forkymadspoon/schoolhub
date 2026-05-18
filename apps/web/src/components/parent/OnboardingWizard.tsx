@@ -6,7 +6,7 @@ import { api } from '../../services/api';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const AVATARS = ['🦊', '🐼', '🦁', '🐨', '🐧', '🦄', '🐯', '🐸'];
+const AVATARS = ['⚡', '👾', '🧱', '🤖', '🐉', '👻', '🍄', '⭐', '🦖', '🔮', '🌸', '🎮'];
 const ALL_GRADES: GradeLevel[] = ['K2', 'P1', 'P2', 'P3', 'P4', 'P5', 'P6'];
 
 const SG_PRIMARY_SCHOOLS = [
@@ -417,15 +417,15 @@ function ScreenChildInfo({
   set: (p: Partial<WizardState>) => void;
 }) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <h2 className="text-2xl font-black text-ink">Tell us about your child</h2>
-        <p className="text-sm text-muted mt-1">We'll personalise everything around them.</p>
+        <h2 className="text-lg font-black text-ink">Tell us about your child</h2>
+        <p className="text-xs text-muted mt-0.5">We'll personalise everything around them.</p>
       </div>
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-semibold text-ink mb-1.5">Child's name</label>
+        <label className="block text-xs font-semibold text-ink mb-1">Child's name</label>
         <input
           type="text"
           value={state.childName}
@@ -433,21 +433,21 @@ function ScreenChildInfo({
           placeholder="e.g. Ava"
           maxLength={50}
           autoFocus
-          className="w-full rounded-xl border-2 border-line px-4 py-3 text-ink placeholder:text-muted focus:outline-none focus:border-primary text-sm"
+          className="w-full rounded-xl border-2 border-line px-3 py-2 text-ink placeholder:text-muted focus:outline-none focus:border-primary text-sm"
         />
       </div>
 
       {/* Avatar */}
       <div>
-        <label className="block text-sm font-semibold text-ink mb-2">Pick an avatar</label>
-        <div className="grid grid-cols-4 gap-2">
+        <label className="block text-xs font-semibold text-ink mb-1.5">Pick an avatar</label>
+        <div className="grid grid-cols-6 gap-1.5">
           {AVATARS.map(emoji => (
             <button
               key={emoji}
               type="button"
               onClick={() => set({ avatar: emoji })}
               className={[
-                'rounded-xl border-2 py-3 text-2xl transition-colors',
+                'rounded-xl border-2 py-1.5 text-xl transition-colors',
                 state.avatar === emoji
                   ? 'border-primary bg-primary-soft'
                   : 'border-line bg-surface hover:border-primary/40',
@@ -461,15 +461,15 @@ function ScreenChildInfo({
 
       {/* Grade */}
       <div>
-        <label className="block text-sm font-semibold text-ink mb-2">Current grade</label>
-        <div className="grid grid-cols-4 gap-2">
+        <label className="block text-xs font-semibold text-ink mb-1.5">Current grade</label>
+        <div className="grid grid-cols-4 gap-1.5">
           {ALL_GRADES.map(g => (
             <button
               key={g}
               type="button"
               onClick={() => onGradeChange(g)}
               className={[
-                'rounded-xl border-2 py-2.5 text-sm font-semibold transition-colors',
+                'rounded-xl border-2 py-1.5 text-sm font-semibold transition-colors',
                 state.gradeLevel === g
                   ? 'border-primary bg-primary text-white'
                   : 'border-line bg-surface text-ink hover:border-primary/40',
@@ -870,7 +870,7 @@ function ScreenGenerate({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="text-5xl mb-3">{state.avatar || '🦊'}</div>
+        <div className="text-5xl mb-3">{state.avatar || '⚡'}</div>
         <h2 className="text-2xl font-black text-ink">All set!</h2>
         <p className="text-sm text-muted mt-1">
           {state.childName}'s personalised plan is ready to generate.
@@ -879,7 +879,7 @@ function ScreenGenerate({
 
       <div className="rounded-2xl border-2 border-line bg-surface p-5 space-y-3">
         <div className="flex items-center gap-3 pb-3 border-b border-line">
-          <span className="text-2xl">{state.avatar || '🦊'}</span>
+          <span className="text-2xl">{state.avatar || '⚡'}</span>
           <div>
             <p className="font-bold text-ink">{state.childName}</p>
             <p className="text-xs text-muted">{state.gradeLevel}</p>
@@ -944,7 +944,7 @@ export function OnboardingWizard() {
 
   const [state, setState] = useState<WizardState>({
     childName: '',
-    avatar: AVATARS[0] ?? '🦊',
+    avatar: AVATARS[0] ?? '⚡',
     gradeLevel: '',
     schoolName: '',
     schoolStart: '07:30',

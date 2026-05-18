@@ -84,7 +84,7 @@ function ChildSwitcherDropdown({
                 className="flex items-center gap-2.5 px-3 py-2 hover:bg-primary-soft/40 transition-colors text-left"
               >
                 <div className={`w-7 h-7 rounded-full ${AVATAR_BG[i % 4]} flex items-center justify-center flex-shrink-0`}>
-                  <span className={`text-xs font-bold ${AVATAR_TEXT[i % 4]}`}>{child.name.charAt(0)}</span>
+                  <span className="text-sm leading-none">{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-ink text-sm font-medium truncate">{child.name}</p>
@@ -160,7 +160,7 @@ function TodaySiblingTimeline({ children, activeChild }: { children: Child[]; ac
             {displayChildren.map((child, i) => (
               <div key={child.id} className="flex flex-col items-center gap-1">
                 <div className={`w-6 h-6 rounded-full ${AVATAR_BG[i % 4]} flex items-center justify-center`}>
-                  <span className={`text-[10px] font-bold ${AVATAR_TEXT[i % 4]}`}>{child.name.charAt(0)}</span>
+                  <span className="text-xs leading-none">{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
                 </div>
                 <p className="text-ink text-[10px] font-semibold truncate">{child.name}</p>
               </div>

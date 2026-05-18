@@ -75,7 +75,7 @@ function ChildSwitcherDropdown({
         ref={triggerRef}
         type="button"
         onClick={handleToggle}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill border border-line bg-surface text-ink text-[11px] font-semibold hover:bg-primary-soft/40 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill border border-line bg-surface text-ink text-[11px] font-semibold hover:bg-primary-soft/40 transition-colors min-h-0"
       >
         <span>{CHILD_EMOJIS[Math.max(activeIdx, 0) % CHILD_EMOJIS.length]}</span>
         <span>{activeChild?.name ?? 'Select child'}</span>

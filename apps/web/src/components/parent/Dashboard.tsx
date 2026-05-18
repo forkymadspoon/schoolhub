@@ -1,23 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import type { Child } from '@schoolhub/types';
+import type { Child, WellbeingSignal } from '@schoolhub/types';
+import type { GradeLevel } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { useSchedule } from '../../hooks/useSchedule';
 import { useWellbeing } from '../../hooks/useWellbeing';
 import { useStats } from '../../hooks/useStats';
 import { subscribeToChildEvents } from '../../services/realtime';
 import { ExamCountdownWidget } from '../shared/ExamCountdownWidget';
-import { PsleChip } from '../shared/PsleChip';
-import { SubjectIcon } from '../shared/SubjectIcon';
-import NoteIcon from '../../assets/icons/interface/note.svg?react';
 import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { WellbeingPanel } from './WellbeingPanel';
 import { NotificationSettings } from './NotificationSettings';
 import { DataUpload } from './DataUpload';
+import CalendarIcon  from '../../assets/icons/interface/calendar.svg?react';
+import ChecklistIcon from '../../assets/icons/interface/checklist.svg?react';
+import BellIcon      from '../../assets/icons/interface/bell.svg?react';
+import TargetIcon    from '../../assets/icons/interface/target.svg?react';
+import TreeIcon      from '../../assets/icons/interface/tree.svg?react';
+import HeartIcon     from '../../assets/icons/interface/heart.svg?react';
+import TickIcon      from '../../assets/icons/interface/tick.svg?react';
+import SyncIcon      from '../../assets/icons/interface/sync.svg?react';
+import CautionIcon   from '../../assets/icons/interface/caution.svg?react';
+import BookmarkIcon  from '../../assets/icons/interface/bookmark.svg?react';
+import { getNextBreak, formatBreakDate } from '../../data/singaporeCalendar';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const CHILD_EMOJIS = ['🦊', '🐼', '🦁', '🐯'];
+const AVATAR_BG   = ['bg-primary-soft', 'bg-game-green-tint', 'bg-game-yellow-tint', 'bg-game-orange-tint'];
+const AVATAR_TEXT = ['text-primary', 'text-game-green', 'text-ink', 'text-game-orange'];
+const HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 
 function greeting() {
   const h = new Date().getHours();
@@ -30,114 +42,279 @@ function pct(done: number, total: number) {
   return total > 0 ? Math.round((done / total) * 100) : 0;
 }
 
-function subjectColor(subject: string) {
-  if (subject === 'Mathematics') return { bg: 'bg-primary/10', border: 'border-primary/30', text: 'text-primary', dot: 'bg-primary', bar: '#198ECC' };
-  if (subject === 'English')     return { bg: 'bg-accent/40',  border: 'border-accent/50',  text: 'text-primary-dark', dot: 'bg-primary-dark', bar: '#146E9F' };
-  if (subject === 'Science')     return { bg: 'bg-game-green-tint', border: 'border-game-green/30', text: 'text-game-green', dot: 'bg-game-green', bar: '#87C83C' };
-  if (subject === 'Chinese')     return { bg: 'bg-game-yellow-tint', border: 'border-game-yellow/30', text: 'text-game-yellow', dot: 'bg-game-yellow', bar: '#F4CC48' };
-  return { bg: 'bg-primary/10', border: 'border-primary/30', text: 'text-primary', dot: 'bg-primary', bar: '#198ECC' };
-}
+// ── NextBreakDashCard ─────────────────────────────────────────────────────────
 
-function intensityChip(intensity: string) {
-  if (intensity === 'high') return 'bg-game-orange-tint text-game-orange';
-  if (intensity === 'low')  return 'bg-game-green-tint text-game-green';
-  return 'bg-primary-soft text-primary';
-}
-
-
-function fmtDate(iso: string) {
-  const d = new Date(iso + 'T00:00:00');
-  return d.toLocaleDateString('en-SG', { weekday: 'short', day: 'numeric' });
-}
-
-interface ScheduleBite {
-  topic_id: string;
-  subject: string;
-  duration_min: number;
-  intensity: string;
-  is_review: boolean;
-  date: string;
-}
-
-// ── MiniCalendar ──────────────────────────────────────────────────────────────
-
-function MiniCalendar({ biteDates, selected, onSelect }: {
-  biteDates: Set<string>;
-  selected: string;
-  onSelect: (date: string) => void;
-}) {
-  const today = new Date().toISOString().slice(0, 10);
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-
-  const monthLabel = now.toLocaleDateString('en-SG', { month: 'long', year: 'numeric' });
-
-  // First Monday on or before the 1st of the month
-  const firstDay = new Date(year, month, 1);
-  const startOffset = (firstDay.getDay() + 6) % 7; // 0=Mon…6=Sun
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  const cells: (number | null)[] = [
-    ...Array(startOffset).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  // Pad to complete last row
-  while (cells.length % 7 !== 0) cells.push(null);
-
-  function isoFor(day: number) {
-    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  }
-
+function NextBreakDashCard() {
+  const next = getNextBreak();
+  if (!next) return null;
+  const isToday = next.daysAway === 0;
   return (
-    <div>
-      <p className="text-ink font-semibold text-sm mb-3">{monthLabel}</p>
-      <div className="grid grid-cols-7 gap-y-1">
-        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(d => (
-          <div key={d} className="text-center text-[10px] font-semibold text-muted pb-1">{d}</div>
-        ))}
-        {cells.map((day, i) => {
-          if (!day) return <div key={i} />;
-          const iso = isoFor(day);
-          const isToday    = iso === today;
-          const isSelected = iso === selected;
-          const hasBite    = biteDates.has(iso);
-          return (
-            <button
-              key={i}
-              type="button"
-              onClick={() => onSelect(iso)}
-              className={`relative flex flex-col items-center justify-center rounded-lg py-0.5 text-xs font-medium transition-colors
-                ${isSelected && !isToday ? 'bg-primary-soft text-primary ring-1 ring-primary' : ''}
-                ${isToday ? 'bg-primary text-white' : 'hover:bg-bg text-ink'}
-              `}
-            >
-              {day}
-              {hasBite && (
-                <span className={`absolute bottom-0.5 w-1 h-1 rounded-full ${isToday ? 'bg-white/70' : 'bg-primary'}`} />
-              )}
-            </button>
-          );
-        })}
+    <div className="card flex items-center gap-3">
+      <div className="w-11 h-11 rounded-full bg-game-green-tint flex items-center justify-center flex-shrink-0">
+        <TreeIcon className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-muted text-[10px] font-bold uppercase tracking-wide">Next Break</p>
+        <p className="text-ink font-semibold text-sm truncate">{next.name}</p>
+        <p className="text-muted text-xs">{formatBreakDate(next.date)}</p>
+      </div>
+      <div className="text-right shrink-0">
+        <p className="text-primary font-bold text-xl leading-none">{isToday ? '🎉' : next.daysAway}</p>
+        {!isToday && <p className="text-muted text-xs">days</p>}
       </div>
     </div>
   );
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// ── TodaySiblingTimeline ──────────────────────────────────────────────────────
+
+function TodaySiblingTimeline({ children, activeChild }: { children: Child[]; activeChild: Child | null }) {
+  const displayChildren = children.length > 0 ? children : activeChild ? [activeChild] : [];
+  const title = displayChildren.length > 1 ? 'Today · Sibling timeline' : "Today's schedule";
+  const colCount = Math.max(displayChildren.length, 1);
+
+  return (
+    <div className="card flex flex-col gap-3 p-4">
+      <div>
+        <h3 className="text-ink font-semibold text-sm">{title}</h3>
+        <p className="text-muted text-xs mt-0.5">Side-by-side schedule</p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <div style={{ minWidth: `${colCount * 72 + 32}px` }}>
+          {/* Child column headers */}
+          <div className="grid mb-2" style={{ gridTemplateColumns: `32px repeat(${colCount}, 1fr)` }}>
+            <div />
+            {displayChildren.map((child, i) => (
+              <div key={child.id} className="flex flex-col items-center gap-1">
+                <div className={`w-6 h-6 rounded-full ${AVATAR_BG[i % 4]} flex items-center justify-center`}>
+                  <span className={`text-[10px] font-bold ${AVATAR_TEXT[i % 4]}`}>{child.name.charAt(0)}</span>
+                </div>
+                <p className="text-ink text-[10px] font-semibold truncate">{child.name}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Hour rows */}
+          {HOURS.map(h => (
+            <div
+              key={h}
+              className="grid border-t border-line py-2"
+              style={{ gridTemplateColumns: `32px repeat(${colCount}, 1fr)` }}
+            >
+              <span className="text-muted text-[10px] leading-none">{String(h).padStart(2, '0')}</span>
+              {Array.from({ length: colCount }).map((_, i) => (
+                <div key={i} className="h-3" />
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-muted text-[10px] text-center border-t border-line pt-2">
+        Add tuition, CCA or activities in the Plan to see the side-by-side schedule.
+      </p>
+    </div>
+  );
+}
+
+// ── GradeInsightCard ──────────────────────────────────────────────────────────
+
+interface GradeInsight {
+  eyebrow: string;
+  headline: string;
+  bullets: string[];
+  note: string;
+}
+
+function gradeInsight(grade: GradeLevel): GradeInsight {
+  if (grade === 'P6') return {
+    eyebrow: 'PSLE PREP',
+    headline: 'Every session counts this year',
+    bullets: [
+      'Focus on weak topics — 30 min, 5×/week',
+      'Past paper practice from Term 2 onward',
+      'Protect sleep — rest is part of the plan',
+    ],
+    note: 'Pace over pressure',
+  };
+  if (grade === 'P5') return {
+    eyebrow: 'PSLE PREP · 1 YEAR OUT',
+    headline: 'Steady habits beat last-minute cramming',
+    bullets: [
+      '20–30 min of focused practice on weak topics, 4–5×/week',
+      'Start light timed practice on familiar paper sections',
+      'Protect 9+ hrs sleep and 1 unstructured day each week',
+    ],
+    note: 'Pace over pressure',
+  };
+  if (grade === 'P4') return {
+    eyebrow: 'LEARNING INSIGHT',
+    headline: 'Science joins the mix — explore together',
+    bullets: [
+      'Short daily bites beat weekend cramming',
+      'Explore Science concepts through real-world examples',
+      'Reading widely strengthens every subject',
+    ],
+    note: 'Curiosity is the best study skill',
+  };
+  if (grade === 'P3') return {
+    eyebrow: 'LEARNING INSIGHT',
+    headline: 'Now is the time to build great habits',
+    bullets: [
+      'Consistent 20-min sessions work better than long ones',
+      'Let them explain what they learned — it cements it',
+      'Praise effort, not just correct answers',
+    ],
+    note: 'Habits formed now last for years',
+  };
+  if (grade === 'K2') return {
+    eyebrow: 'P1 READINESS',
+    headline: 'Play and routine are the foundation',
+    bullets: [
+      'Read together for 10 min every night',
+      'Count, sing, and explore — it all counts',
+      'Consistent bedtime matters more than worksheets',
+    ],
+    note: 'Confidence is the best P1 prep',
+  };
+  return {
+    eyebrow: 'LEARNING INSIGHT',
+    headline: 'Build the daily habit now',
+    bullets: [
+      '10–15 min of reading every night adds up fast',
+      'Short, fun practice beats long sessions',
+      'Ask "what was interesting today?" — not "what score?"',
+    ],
+    note: 'Love of learning is the real goal',
+  };
+}
+
+function GradeInsightCard({
+  gradeLevel,
+  childName: _childName,
+  onViewPlan,
+}: {
+  gradeLevel: GradeLevel;
+  childName: string;
+  onViewPlan: () => void;
+}) {
+  const insight = gradeInsight(gradeLevel);
+  return (
+    <div className="card flex flex-col gap-3 p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full bg-primary-soft flex items-center justify-center flex-shrink-0 mt-0.5">
+          <BookmarkIcon className="w-4 h-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-primary text-[10px] font-bold uppercase tracking-widest mb-1">{insight.eyebrow}</p>
+          <p className="text-ink font-semibold text-sm leading-snug">{insight.headline}</p>
+        </div>
+      </div>
+      <ul className="flex flex-col gap-1.5 pl-1">
+        {insight.bullets.map(b => (
+          <li key={b} className="flex items-start gap-2 text-muted text-xs leading-snug">
+            <span className="text-primary mt-0.5 shrink-0">·</span>
+            {b}
+          </li>
+        ))}
+      </ul>
+      <p className="text-muted text-[10px] flex items-center gap-1.5 border-t border-line pt-2">
+        <span className="w-3.5 h-3.5 rounded-full border border-muted/40 flex items-center justify-center text-[8px] shrink-0">i</span>
+        {insight.note}
+      </p>
+      <button type="button" onClick={onViewPlan} className="btn-primary text-xs py-2 w-full">
+        View Plan →
+      </button>
+    </div>
+  );
+}
+
+// ── WellbeingNudgeCard ────────────────────────────────────────────────────────
+
+function WellbeingNudgeCard({
+  signals,
+  childName,
+  acknowledge,
+  onRefresh,
+}: {
+  signals: WellbeingSignal[];
+  childName: string;
+  acknowledge: (id: string, action: 'accepted' | 'modified' | 'dismissed') => Promise<void>;
+  onRefresh: () => void;
+}) {
+  const open = signals.filter(s => !s.resolved_at);
+  const first = open[0];
+
+  function signalLabel(type: string) {
+    return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  async function handleAck(action: 'accepted' | 'modified' | 'dismissed') {
+    if (!first) return;
+    await acknowledge(first.id, action);
+    onRefresh();
+  }
+
+  return (
+    <div className="card flex flex-col gap-3 p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-full bg-primary-soft flex items-center justify-center flex-shrink-0 mt-0.5">
+          <HeartIcon className="w-4 h-4 text-primary" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-primary text-[10px] font-bold uppercase tracking-widest mb-1">WELLBEING NUDGE</p>
+          <p className="text-ink font-semibold text-sm leading-snug">
+            {first ? signalLabel(first.signal_type) : 'All clear'}
+          </p>
+        </div>
+      </div>
+      <p className="text-muted text-xs leading-relaxed">
+        {first
+          ? first.recommended_action
+          : `No active signals — ${childName} is on track.`}
+      </p>
+      {first && (
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => void handleAck('accepted')}
+            className="flex-1 btn-primary py-2 text-xs flex items-center justify-center gap-1.5"
+          >
+            <TickIcon className="w-3 h-3" /> Accept
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleAck('modified')}
+            className="flex-1 btn-secondary py-2 text-xs"
+          >
+            Modify
+          </button>
+          <button
+            type="button"
+            onClick={() => void handleAck('dismissed')}
+            className="flex-1 btn-secondary py-2 text-xs"
+          >
+            × Dismiss
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
-  const today = new Date().toISOString().slice(0, 10);
 
-  const [activeChild, setActiveChild]         = useState<Child | null>(null);
-  const [allChildren, setAllChildren]         = useState<Child[]>([]);
-  const [showRegen, setShowRegen]             = useState(false);
-  const [showUpload, setShowUpload]           = useState(false);
-  const [showWellbeing, setShowWellbeing]     = useState(false);
+  const [activeChild, setActiveChild]             = useState<Child | null>(null);
+  const [allChildren, setAllChildren]             = useState<Child[]>([]);
+  const [showRegen, setShowRegen]                 = useState(false);
+  const [showUpload, setShowUpload]               = useState(false);
+  const [showWellbeing, setShowWellbeing]         = useState(false);
   const [showNotifSettings, setShowNotifSettings] = useState(false);
-  const [selectedDate, setSelectedDate]       = useState<string>(today);
 
   useEffect(() => {
     void api.get<Child[]>('/children').then(children => {
@@ -148,56 +325,33 @@ export function Dashboard() {
   }, []);
 
   const childId = activeChild?.id ?? null;
-  const { schedule, bitesThisWeek, loading: schedLoading, refresh: refreshSchedule } = useSchedule(childId);
-  const { signals, refresh: refreshWellbeing } = useWellbeing(childId);
+  const { bitesThisWeek, loading: schedLoading, refresh: refreshSchedule } = useSchedule(childId);
+  const { signals, acknowledge, refresh: refreshWellbeing } = useWellbeing(childId);
   const { stats } = useStats(childId);
 
   useEffect(() => {
     if (!childId) return;
-    return subscribeToChildEvents(childId, (event) => {
+    return subscribeToChildEvents(childId, event => {
       if (event.type === 'wellbeing.signal') refreshWellbeing();
     });
   }, [childId, refreshWellbeing]);
 
   const openSignals = signals.filter(s => !s.resolved_at).length;
-  const bTotal    = bitesThisWeek?.total ?? 0;
-  const bDone     = bitesThisWeek?.completed ?? 0;
-  const progress  = pct(bDone, bTotal);
+  const bTotal   = bitesThisWeek?.total ?? 0;
+  const bDone    = bitesThisWeek?.completed ?? 0;
+  const progress = pct(bDone, bTotal);
 
-  const allBites: ScheduleBite[] = schedule?.schedule_json
-    ? (schedule.schedule_json as { weeks: Array<{ bites: ScheduleBite[] }> })
-        .weeks.flatMap(w => w.bites)
-    : [];
+  const statusLabel =
+    bTotal === 0      ? 'GETTING STARTED' :
+    progress >= 60    ? 'ON TRACK'         :
+                        'NEEDS ATTENTION';
 
-  // Next 20 bites from today
-  const upcomingBites = allBites.filter(b => b.date >= today).slice(0, 20);
-
-  // This week range
-  const thisWeekStart = (() => {
-    const d = new Date();
-    d.setDate(d.getDate() - d.getDay() + 1);
-    return d.toISOString().slice(0, 10);
-  })();
-  const thisWeekEnd = (() => {
-    const d = new Date(thisWeekStart);
-    d.setDate(d.getDate() + 6);
-    return d.toISOString().slice(0, 10);
-  })();
-  const thisWeekBites = allBites.filter(b => b.date >= thisWeekStart && b.date <= thisWeekEnd);
-
-  // Weekly progress per subject
-  const subjectList = [...new Set(thisWeekBites.map(b => b.subject))];
-  const subjectProgress = subjectList.map(subject => {
-    const subjectBites = thisWeekBites.filter(b => b.subject === subject);
-    const done = subjectBites.filter(b => b.is_review).length;
-    return { subject, done, total: subjectBites.length, pct: pct(done, subjectBites.length) };
-  });
-
-  // Calendar bite dates
-  const biteDates = new Set(allBites.map(b => b.date));
-
-  // Selected day's sessions
-  const selectedDayBites = allBites.filter(b => b.date === selectedDate);
+  function insightText() {
+    if (bTotal === 0) return `Let's build ${activeChild?.name ?? 'your child'}'s first study plan.`;
+    if ((stats?.streak ?? 0) > 0) return `${stats!.streak}-day streak — keep the momentum going.`;
+    if (progress >= 80) return `Great pace! ${activeChild?.name ?? 'Your child'} is ahead of schedule.`;
+    return 'Steady progress builds lasting results.';
+  }
 
   const handleChildSwitch = (id: string) => {
     const child = allChildren.find(c => c.id === id);
@@ -205,17 +359,12 @@ export function Dashboard() {
     else void api.get<Child>(`/children/${id}`).then(setActiveChild).catch(() => null);
   };
 
-  const handleRegenConfirmed = () => {
-    setShowRegen(false);
-    refreshSchedule();
-  };
-
-  // ── Render ───────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-bg flex flex-col" data-sen={activeChild?.sen_profile ?? undefined}>
 
-      {/* ── Mobile header ── */}
+      {/* Mobile header */}
       <header className="md:hidden bg-surface border-b border-line px-4 py-3 flex items-center justify-between sticky top-0 z-10">
         <img src="/logo.svg" alt="SchoolHub" className="w-32 h-auto" />
         <div className="flex items-center gap-2">
@@ -226,7 +375,7 @@ export function Dashboard() {
         </div>
       </header>
 
-      {/* ── Desktop header ── */}
+      {/* Desktop header */}
       <header className="hidden md:flex items-center justify-between px-8 border-b border-line bg-surface sticky top-0 z-10 h-[90px]">
         <div className="flex flex-col gap-1.5">
           <p className="text-muted text-xs">
@@ -234,7 +383,7 @@ export function Dashboard() {
           </p>
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {allChildren.map((child, i) => (
                 <button
                   key={child.id}
@@ -254,7 +403,7 @@ export function Dashboard() {
               <button
                 type="button"
                 onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors border border-dashed border-line text-muted hover:border-primary hover:text-primary min-h-0"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold border border-dashed border-line text-muted hover:border-primary hover:text-primary transition-colors min-h-0"
               >
                 + Add child
               </button>
@@ -262,6 +411,9 @@ export function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {activeChild && (
+            <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
+          )}
           <button type="button" onClick={() => setShowNotifSettings(true)}
             className="btn-secondary text-sm px-4 py-2">Notifications</button>
           <button type="button" onClick={() => setShowUpload(true)}
@@ -269,7 +421,7 @@ export function Dashboard() {
         </div>
       </header>
 
-      {/* ── Mobile: child pills ── */}
+      {/* Mobile child pills */}
       <div className="md:hidden flex items-center gap-2 flex-wrap px-4 pt-3">
         {allChildren.map((child, i) => (
           <button
@@ -289,363 +441,175 @@ export function Dashboard() {
         <button
           type="button"
           onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors border border-dashed border-line text-muted hover:border-primary hover:text-primary min-h-0"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold border border-dashed border-line text-muted hover:border-primary hover:text-primary transition-colors min-h-0"
         >
           + Add child
         </button>
       </div>
 
-      {/* ── Main two-column body ── */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_280px] overflow-hidden">
+      {/* Two-column body */}
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_300px] overflow-hidden">
 
-        {/* ═══════════ LEFT COLUMN ═══════════ */}
-        <div className="flex flex-col gap-5 px-4 md:px-8 py-5 pb-24 md:pb-8 overflow-y-auto">
+        {/* ═══ LEFT COLUMN ═══ */}
+        <div className="flex flex-col gap-4 px-4 md:px-6 py-5 pb-24 md:pb-8 overflow-y-auto">
 
-          {/* Exam countdown / PSLE context chip */}
-          {activeChild && (
-            <div className="flex items-center gap-2 flex-wrap">
-              <PsleChip gradeLevel={activeChild.grade_level} />
-              <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
-            </div>
-          )}
+          {/* 1. Blue hero card */}
+          <div className="rounded-card bg-primary px-5 py-6 flex flex-col gap-3 relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/10 pointer-events-none" />
+            <div className="absolute -right-2 top-16 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
 
-          {/* Compact hero card */}
-          <div className="card flex items-center gap-4 py-4 px-5">
-            <div className="flex-1 min-w-0">
-              <p className="text-muted text-[11px] font-semibold uppercase tracking-wide mb-1">This week</p>
-              {schedLoading ? (
-                <div className="h-6 w-24 bg-line rounded-lg animate-pulse mb-2" />
-              ) : (
-                <p className="text-2xl font-extrabold text-ink leading-none mb-2">
-                  {bDone}<span className="text-muted text-base font-medium">/{bTotal} bites</span>
-                </p>
-              )}
-              {bTotal > 0 && (
-                <div className="w-full h-2 bg-line rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${progress}%`,
-                      background: progress >= 80 ? '#87C83C' : progress >= 50 ? '#F4CC48' : '#198ECC',
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-            {bTotal > 0 ? (
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={() => navigate('/plan')}
-                  className="btn-primary py-2 px-4 text-sm"
-                >
-                  View plan →
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowRegen(true)}
-                  disabled={!childId}
-                  className="btn-secondary px-3 py-2 text-sm"
-                  aria-label="Regenerate schedule"
-                >↺</button>
-              </div>
-            ) : (
-              !schedLoading && (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button type="button" onClick={() => setShowUpload(true)} className="btn-primary py-2 px-4 text-sm">
-                    ⬆️ Upload files
-                  </button>
-                  <button type="button" onClick={() => setShowRegen(true)} disabled={!childId} className="btn-secondary py-2 px-4 text-sm">
-                    ✨ Generate
-                  </button>
-                </div>
-              )
-            )}
-          </div>
-
-          {/* Schedule list */}
-          <div className="card flex flex-col gap-0 overflow-hidden p-0">
-            <div className="px-5 py-3 border-b border-line flex items-center justify-between">
-              <h3 className="text-ink font-semibold text-sm">Upcoming sessions</h3>
-              {upcomingBites.length > 0 && (
-                <span className="text-muted text-xs">{upcomingBites.length} sessions</span>
-              )}
-            </div>
+            <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest z-10">{statusLabel}</p>
 
             {schedLoading ? (
-              <div className="flex flex-col gap-0">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="px-5 py-3 border-b border-line last:border-0 flex items-center gap-3">
-                    <div className="w-14 h-10 bg-line rounded-lg animate-pulse flex-shrink-0" />
-                    <div className="flex-1 flex flex-col gap-1.5">
-                      <div className="h-3.5 w-28 bg-line rounded animate-pulse" />
-                      <div className="h-3 w-16 bg-line rounded animate-pulse" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : upcomingBites.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 py-10 text-center px-5">
-                <NoteIcon className="w-10 h-10" />
-                <p className="text-ink font-semibold text-sm">
-                  Ready to build {activeChild?.name ?? 'your child'}'s study plan?
+              <div className="h-14 w-40 bg-white/20 rounded-xl animate-pulse" />
+            ) : (
+              <div className="z-10">
+                <p className="text-white font-black leading-none text-5xl">
+                  {progress}%
+                  <span className="text-white/60 text-xl font-medium ml-2">this week</span>
                 </p>
-                <p className="text-muted text-xs">Upload your school calendar and exam dates to get started.</p>
-                <div className="flex gap-2 mt-1">
-                  <button type="button" onClick={() => setShowUpload(true)} className="btn-primary px-4 py-2 text-xs">⬆️ Upload files</button>
-                  <button type="button" onClick={() => setShowRegen(true)} disabled={!childId} className="btn-secondary px-4 py-2 text-xs">✨ Generate schedule</button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-col divide-y divide-line">
-                {upcomingBites.map((bite, i) => {
-                  const c = subjectColor(bite.subject);
-                  const isSelected = bite.date === selectedDate;
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setSelectedDate(bite.date)}
-                      className={`flex items-center gap-3 px-5 py-3 text-left transition-colors hover:bg-bg ${isSelected ? 'bg-primary-soft/50' : ''}`}
-                    >
-                      {/* Date chip */}
-                      <div className={`flex-shrink-0 w-14 rounded-xl px-1.5 py-2 text-center ${c.bg} border ${c.border}`}>
-                        <p className={`text-[10px] font-bold uppercase ${c.text}`}>
-                          {new Date(bite.date + 'T00:00:00').toLocaleDateString('en-SG', { weekday: 'short' })}
-                        </p>
-                        <p className={`text-lg font-extrabold leading-tight ${c.text}`}>
-                          {new Date(bite.date + 'T00:00:00').getDate()}
-                        </p>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-ink text-sm font-semibold truncate">{bite.subject}</p>
-                        <p className="text-muted text-xs">{bite.duration_min} min{bite.is_review ? ' · Review' : ''}</p>
-                      </div>
-
-                      {/* Intensity */}
-                      <span className={`flex-shrink-0 text-xs font-semibold px-2.5 py-1 rounded-pill ${intensityChip(bite.intensity)}`}>
-                        {bite.intensity}
-                      </span>
-                    </button>
-                  );
-                })}
+                <p className="text-white/70 text-sm mt-1.5">{bDone} of {bTotal} bites completed</p>
               </div>
             )}
-          </div>
 
-          {/* Weekly progress bars */}
-          {subjectProgress.length > 0 && (
-            <div className="card flex flex-col gap-3">
-              <h3 className="text-ink font-semibold text-sm">This week's progress</h3>
-              <div className="flex flex-col gap-3">
-                {subjectProgress.map(({ subject, done, total, pct: p }) => {
-                  const c = subjectColor(subject);
-                  return (
-                    <div key={subject} className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${c.dot}`} />
-                          <p className="text-ink text-xs font-medium">{subject}</p>
-                        </div>
-                        <p className="text-muted text-xs">{done}/{total} · {p}%</p>
-                      </div>
-                      <div className="w-full h-1.5 bg-line rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${p}%`, background: c.bar }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ═══════════ RIGHT COLUMN ═══════════ */}
-        <div className="hidden md:flex flex-col gap-5 px-5 py-5 border-l border-line bg-surface overflow-y-auto">
-
-          {/* Mini calendar */}
-          <div className="card p-4">
-            <MiniCalendar
-              biteDates={biteDates}
-              selected={selectedDate}
-              onSelect={setSelectedDate}
-            />
-          </div>
-
-          {/* Selected day's sessions */}
-          <div className="card flex flex-col gap-3 p-4">
-            <h3 className="text-ink font-semibold text-sm">
-              {selectedDate === today ? "Today's sessions" : fmtDate(selectedDate)}
-            </h3>
-            {selectedDayBites.length === 0 ? (
-              <p className="text-muted text-xs">No sessions {selectedDate === today ? 'today' : 'on this day'}.</p>
-            ) : (
-              <div className="flex flex-col gap-2">
-                {selectedDayBites.map((bite, i) => {
-                  const c = subjectColor(bite.subject);
-                  return (
-                    <div key={i} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 border ${c.bg} ${c.border}`}>
-                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${c.dot}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-xs font-semibold truncate ${c.text}`}>{bite.subject}</p>
-                        <p className="text-muted text-[11px]">{bite.duration_min} min</p>
-                      </div>
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-pill ${intensityChip(bite.intensity)}`}>
-                        {bite.intensity}
-                      </span>
-                    </div>
-                  );
-                })}
+            {bTotal > 0 && (
+              <div className="h-1.5 bg-white/20 rounded-full overflow-hidden z-10">
+                <div
+                  className="h-full bg-white rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
             )}
+
+            <p className="text-white/80 text-sm leading-snug z-10">{insightText()}</p>
           </div>
 
-          {/* Achievements */}
-          {activeChild?.gamification_enabled !== false && (
-            <div className="card flex flex-col gap-3 p-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-ink font-semibold text-sm">Achievements</h3>
-                <button type="button" onClick={() => navigate('/progress')}
-                  className="text-primary text-xs hover:underline">View all →</button>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-xl font-extrabold text-ink leading-none">{stats ? stats.streak : '—'}</p>
-                  <p className="text-muted text-[10px]">🔥 streak</p>
+          {/* 2. Quick actions */}
+          <div className="grid grid-cols-4 gap-3">
+            {([
+              { Icon: CalendarIcon,  label: 'Calendar', bg: 'bg-primary-soft',     action: () => navigate('/plan'),          badge: 0 },
+              { Icon: ChecklistIcon, label: 'Tasks',    bg: 'bg-game-yellow-tint', action: () => navigate('/plan'),          badge: 0 },
+              { Icon: TargetIcon,    label: 'Exams',    bg: 'bg-game-orange-tint', action: () => navigate('/plan'),          badge: 0 },
+              { Icon: BellIcon,      label: 'Alerts',   bg: 'bg-game-green-tint',  action: () => setShowWellbeing(true), badge: openSignals },
+            ] as const).map(({ Icon, label, bg, action, badge }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={action}
+                className="card flex flex-col items-center gap-1.5 py-3 px-1 hover:bg-primary-soft/30 transition-colors relative"
+              >
+                <div className={`w-10 h-10 rounded-full ${bg} flex items-center justify-center`}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-xl font-extrabold text-ink leading-none">{stats ? stats.total_xp : '—'}</p>
-                  <p className="text-muted text-[10px]">⚡ XP</p>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  {stats?.recent_badge ? (
-                    <>
-                      <SubjectIcon subject={stats.recent_badge.subject} className="w-5 h-5" />
-                      <p className="text-muted text-[10px] capitalize">{stats.recent_badge.tier}</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-xl leading-none text-muted">🏅</p>
-                      <p className="text-muted text-[10px]">No badge yet</p>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Wellbeing */}
-          <div className="card flex flex-col gap-3 p-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-ink font-semibold text-sm">Wellbeing</h3>
-              <div className="flex items-center gap-1.5">
-                <span className={
-                  openSignals === 0 ? 'status-dot status-dot-green' :
-                  openSignals <= 2  ? 'status-dot status-dot-yellow' :
-                                      'status-dot status-dot-red'
-                } />
-                <span className="text-muted text-xs">
-                  {openSignals === 0 ? 'All good' : openSignals === 1 ? '1 signal' : `${openSignals} signals`}
-                </span>
-              </div>
-            </div>
-            {openSignals > 0 ? (
-              <>
-                <ul className="flex flex-col gap-1">
-                  {signals.filter(s => !s.resolved_at).slice(0, 3).map(s => (
-                    <li key={s.id} className="text-muted text-xs capitalize flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-game-orange flex-shrink-0" />
-                      {s.signal_type.replace(/_/g, ' ')}
-                    </li>
-                  ))}
-                </ul>
-                <button type="button" onClick={() => setShowWellbeing(true)}
-                  className="btn-secondary text-xs px-3 py-1.5 self-start">
-                  View details →
-                </button>
-              </>
-            ) : (
-              <p className="text-muted text-xs">No active signals. Keep going! 🌱</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Mobile: right-panel items stacked below ── */}
-      <div className="md:hidden flex flex-col gap-4 px-4 pb-24">
-        {/* Achievements */}
-        {activeChild?.gamification_enabled !== false && (
-          <div className="card flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-ink font-semibold text-sm">Achievements</h3>
-              <button type="button" onClick={() => navigate('/progress')} className="text-primary text-xs hover:underline">View all →</button>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="flex flex-col gap-0.5">
-                <p className="text-2xl font-extrabold text-ink leading-none">{stats ? stats.streak : '—'}</p>
-                <p className="text-muted text-[10px]">🔥 streak</p>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <p className="text-2xl font-extrabold text-ink leading-none">{stats ? stats.total_xp : '—'}</p>
-                <p className="text-muted text-[10px]">⚡ XP</p>
-              </div>
-              <div className="flex flex-col gap-0.5">
-                {stats?.recent_badge ? (
-                  <>
-                    <SubjectIcon subject={stats.recent_badge.subject} className="w-6 h-6" />
-                    <p className="text-muted text-[10px] capitalize">{stats.recent_badge.tier}</p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-2xl leading-none text-muted">🏅</p>
-                    <p className="text-muted text-[10px]">No badge yet</p>
-                  </>
+                {badge > 0 && (
+                  <span className="absolute top-2 right-2 w-4 h-4 rounded-full bg-game-orange flex items-center justify-center text-white text-[9px] font-bold">
+                    {badge}
+                  </span>
                 )}
-              </div>
+                <p className="text-ink text-xs font-medium">{label}</p>
+              </button>
+            ))}
+          </div>
+
+          {/* 3. Next Break */}
+          <NextBreakDashCard />
+
+          {/* 4. Topics */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-ink font-bold text-sm">
+                {activeChild?.name ?? 'Your child'}'s topics
+              </h2>
+              <button type="button" onClick={() => navigate('/progress')}
+                className="text-primary text-xs hover:underline">
+                View all →
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { Icon: TickIcon,    bg: 'bg-game-green-tint',  count: 0, label: 'MASTERED'  },
+                { Icon: SyncIcon,   bg: 'bg-game-yellow-tint', count: 0, label: 'WORKING'   },
+                { Icon: CautionIcon, bg: 'bg-game-orange-tint', count: 0, label: 'ATTENTION' },
+              ] as const).map(({ Icon, bg, count, label }) => (
+                <div key={label} className="card flex flex-col gap-2 p-3">
+                  <div className={`w-8 h-8 rounded-full ${bg} flex items-center justify-center`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <p className="text-2xl font-black text-ink leading-none">{count}</p>
+                  <p className="text-muted text-[10px] font-bold uppercase tracking-wide">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
-        )}
-        {/* Wellbeing */}
-        <div className="card flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-ink font-semibold text-sm">Wellbeing</h3>
-            <div className="flex items-center gap-2">
-              <span className={openSignals === 0 ? 'status-dot status-dot-green' : openSignals <= 2 ? 'status-dot status-dot-yellow' : 'status-dot status-dot-red'} />
-              <span className="text-muted text-xs">{openSignals === 0 ? 'All good' : `${openSignals} signal${openSignals > 1 ? 's' : ''}`}</span>
+
+          {/* Mobile-only: wellbeing nudge */}
+          {activeChild && (
+            <div className="md:hidden">
+              <WellbeingNudgeCard
+                signals={signals}
+                childName={activeChild.name}
+                acknowledge={acknowledge}
+                onRefresh={refreshWellbeing}
+              />
             </div>
-          </div>
-          {openSignals > 0 ? (
-            <>
-              <ul className="flex flex-col gap-1">
-                {signals.filter(s => !s.resolved_at).slice(0, 3).map(s => (
-                  <li key={s.id} className="text-muted text-xs capitalize flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-game-orange flex-shrink-0" />
-                    {s.signal_type.replace(/_/g, ' ')}
-                  </li>
-                ))}
-              </ul>
-              <button type="button" onClick={() => setShowWellbeing(true)} className="btn-secondary text-xs px-4 py-2 self-start">View details →</button>
-            </>
-          ) : (
-            <p className="text-muted text-xs">No active signals. Keep going! 🌱</p>
+          )}
+        </div>
+
+        {/* ═══ RIGHT COLUMN ═══ */}
+        <div className="hidden md:flex flex-col gap-4 px-4 py-5 border-l border-line bg-surface overflow-y-auto">
+
+          {/* 1. Today · Sibling timeline */}
+          <TodaySiblingTimeline children={allChildren} activeChild={activeChild} />
+
+          {/* 2. Grade insight */}
+          {activeChild && (
+            <GradeInsightCard
+              gradeLevel={activeChild.grade_level}
+              childName={activeChild.name}
+              onViewPlan={() => navigate('/plan')}
+            />
+          )}
+
+          {/* 3. Wellbeing nudge */}
+          {activeChild && (
+            <WellbeingNudgeCard
+              signals={signals}
+              childName={activeChild.name}
+              acknowledge={acknowledge}
+              onRefresh={refreshWellbeing}
+            />
           )}
         </div>
       </div>
 
-      {/* ── Modals ── */}
+      {/* Modals */}
       {showRegen && activeChild && (
         <ScheduleRegenModal
           childId={activeChild.id}
           childName={activeChild.name}
           senProfile={activeChild.sen_profile}
           onClose={() => setShowRegen(false)}
-          onConfirmed={handleRegenConfirmed}
+          onConfirmed={() => { setShowRegen(false); refreshSchedule(); }}
         />
+      )}
+
+      {showUpload && activeChild && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/40"
+          onClick={() => setShowUpload(false)}
+        >
+          <div
+            className="bg-surface rounded-t-card sm:rounded-card shadow-card w-full max-w-lg mx-0 sm:mx-4 p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-ink font-semibold text-lg">Upload files</h2>
+              <button type="button" onClick={() => setShowUpload(false)}
+                className="text-muted hover:text-ink text-xl" aria-label="Close">×</button>
+            </div>
+            <DataUpload childId={activeChild.id} onComplete={() => setShowUpload(false)} />
+          </div>
+        </div>
       )}
 
       {showWellbeing && activeChild && (
@@ -657,31 +621,20 @@ export function Dashboard() {
       )}
 
       {showNotifSettings && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/40"
-          onClick={() => setShowNotifSettings(false)}>
-          <div className="bg-surface rounded-t-card sm:rounded-card shadow-card w-full max-w-lg mx-0 sm:mx-4 p-6"
-            onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/40"
+          onClick={() => setShowNotifSettings(false)}
+        >
+          <div
+            className="bg-surface rounded-t-card sm:rounded-card shadow-card w-full max-w-lg mx-0 sm:mx-4 p-6"
+            onClick={e => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-ink font-semibold text-lg">Notification settings</h2>
               <button type="button" onClick={() => setShowNotifSettings(false)}
-                className="text-muted hover:text-ink text-xl leading-none" aria-label="Close">×</button>
+                className="text-muted hover:text-ink text-xl" aria-label="Close">×</button>
             </div>
             <NotificationSettings />
-          </div>
-        </div>
-      )}
-
-      {showUpload && activeChild && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/40"
-          onClick={() => setShowUpload(false)}>
-          <div className="bg-surface rounded-t-card sm:rounded-card shadow-card w-full max-w-lg mx-0 sm:mx-4 p-6"
-            onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-ink font-semibold text-lg">Upload files</h2>
-              <button type="button" onClick={() => setShowUpload(false)}
-                className="text-muted hover:text-ink text-xl leading-none" aria-label="Close">×</button>
-            </div>
-            <DataUpload childId={activeChild.id} onComplete={() => setShowUpload(false)} />
           </div>
         </div>
       )}

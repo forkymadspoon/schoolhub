@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { Child, WellbeingSignal } from '@schoolhub/types';
 import type { GradeLevel } from '@schoolhub/types';
@@ -56,13 +57,24 @@ function ChildSwitcherDropdown({
   onAddChild: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const activeIdx = allChildren.findIndex(c => c.id === activeChild?.id);
+
+  function handleToggle() {
+    if (!open && triggerRef.current) {
+      const r = triggerRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 8, left: r.left });
+    }
+    setOpen(o => !o);
+  }
 
   return (
     <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
-        onClick={() => setOpen(o => !o)}
+        onClick={handleToggle}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill border border-line bg-surface text-ink text-[11px] font-semibold hover:bg-primary-soft/40 transition-colors"
       >
         <span>{CHILD_EMOJIS[Math.max(activeIdx, 0) % CHILD_EMOJIS.length]}</span>
@@ -71,10 +83,13 @@ function ChildSwitcherDropdown({
         <ArrowDownIcon className={`w-3 h-3 opacity-80 ml-0.5 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      {open && (
+      {open && createPortal(
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-full mt-2 z-50 bg-surface rounded-card shadow-card border border-line w-52 py-1.5 flex flex-col">
+          <div className="fixed inset-0 z-[200]" onClick={() => setOpen(false)} />
+          <div
+            className="fixed z-[201] bg-surface rounded-card shadow-card border border-line w-52 py-1.5 flex flex-col"
+            style={{ top: pos.top, left: pos.left }}
+          >
             <p className="text-muted text-[10px] font-bold uppercase tracking-widest px-3 pt-1 pb-1.5">Switch child</p>
             {allChildren.map((child, i) => (
               <button
@@ -108,7 +123,8 @@ function ChildSwitcherDropdown({
               </button>
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );

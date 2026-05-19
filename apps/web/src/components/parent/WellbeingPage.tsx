@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { useWellbeing } from '../../hooks/useWellbeing';
+import { useActiveChild } from '../../hooks/useActiveChild';
 import { WellbeingPanel } from './WellbeingPanel';
 
 const SIGNAL_LABELS: Record<string, string> = {
@@ -13,16 +14,8 @@ const SIGNAL_LABELS: Record<string, string> = {
 };
 
 export function WellbeingPage() {
-  const [activeChild, setActiveChild] = useState<Child | null>(null);
+  const { activeChild } = useActiveChild();
   const [showPanel, setShowPanel] = useState(false);
-
-  useEffect(() => {
-    void api.get<Child[]>('/children').then(children => {
-      const first = children[0];
-      if (first) setActiveChild(first);
-    }).catch(() => null);
-  }, []);
-
   const childId = activeChild?.id ?? null;
   const { signals, refresh } = useWellbeing(childId);
   const openSignals = signals.filter(s => !s.resolved_at);

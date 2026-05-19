@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
 import { useSchedule } from '../../hooks/useSchedule';
+import { useActiveChild } from '../../hooks/useActiveChild';
 import { useStats } from '../../hooks/useStats';
 import { SubjectIcon } from '../shared/SubjectIcon';
 import FireIcon from '../../assets/icons/misc/fire.svg?react';
@@ -26,15 +27,7 @@ function pct(done: number, total: number) {
 }
 
 export function ProgressPage() {
-  const [activeChild, setActiveChild] = useState<Child | null>(null);
-
-  useEffect(() => {
-    void api.get<Child[]>('/children').then(children => {
-      const first = children[0];
-      if (first) setActiveChild(first);
-    }).catch(() => null);
-  }, []);
-
+  const { activeChild } = useActiveChild();
   const childId = activeChild?.id ?? null;
   const { bitesThisWeek, loading: schedLoading } = useSchedule(childId);
   const { stats, loading: statsLoading } = useStats(childId);

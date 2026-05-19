@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
@@ -9,7 +9,7 @@ import HeartIcon from '../../assets/icons/interface/heart.svg?react';
 import SettingIcon from '../../assets/icons/interface/setting.svg?react';
 import UserIcon from '../../assets/icons/interface/user.svg?react';
 
-const navItems = [
+const NAV_ITEMS = [
   { to: '/',          label: 'Home',      Icon: HomeIcon },
   { to: '/plan',      label: 'Plan',      Icon: CalendarIcon },
   { to: '/progress',  label: 'Progress',  Icon: AnalyticsIcon },
@@ -20,15 +20,22 @@ const navItems = [
 export function ParentSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [children, setChildren] = useState<Child[]>([]);
-  const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
   useEffect(() => {
-    void api.get<Child[]>('/children').then(c => {
-      setChildren(c);
-      if (c[0]) setActiveChildId(c[0].id);
-    }).catch(() => null);
+    void api.get<Child[]>('/children').then(setChildren).catch(() => null);
   }, []);
+
+  const activeChildId = searchParams.get('child') ?? children[0]?.id ?? null;
+
+  function navTo(path: string) {
+    return activeChildId ? `${path}?child=${activeChildId}` : path;
+  }
+
+  function switchChild(id: string) {
+    navigate(`${location.pathname}?child=${id}`);
+  }
 
   return (
     <aside className="hidden md:flex flex-col fixed left-0 top-7 bottom-0 w-60 bg-surface border-r border-line z-30">
@@ -45,7 +52,7 @@ export function ParentSidebar() {
             <button
               key={child.id}
               type="button"
-              onClick={() => setActiveChildId(child.id)}
+              onClick={() => switchChild(child.id)}
               className={`text-xs font-semibold px-3 py-1.5 rounded-pill transition-colors min-h-0 min-w-0 ${
                 activeChildId === child.id
                   ? 'bg-primary text-white'
@@ -67,10 +74,10 @@ export function ParentSidebar() {
 
       {/* Nav items */}
       <nav className="flex-1 flex flex-col gap-1 px-3 py-4 overflow-y-auto">
-        {navItems.map(item => (
+        {NAV_ITEMS.map(item => (
           <NavLink
             key={item.to}
-            to={item.to}
+            to={navTo(item.to)}
             end={item.to === '/'}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors font-medium text-sm min-h-0 ${

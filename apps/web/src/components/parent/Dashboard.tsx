@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useActiveChild } from '../../hooks/useActiveChild';
 import type { Child, WellbeingSignal } from '@schoolhub/types';
 import type { GradeLevel } from '@schoolhub/types';
 import { api } from '../../services/api';
@@ -397,8 +398,6 @@ export function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [activeChild, setActiveChild]             = useState<Child | null>(null);
-  const [allChildren, setAllChildren]             = useState<Child[]>([]);
   const [showRegen, setShowRegen]                 = useState(false);
   const [showWellbeing, setShowWellbeing]         = useState(false);
   const [showNotifSettings, setShowNotifSettings] = useState(false);
@@ -406,13 +405,8 @@ export function Dashboard() {
     (location.state as { planGenerating?: boolean } | null)?.planGenerating ?? false
   );
 
-  useEffect(() => {
-    void api.get<Child[]>('/children').then(children => {
-      setAllChildren(children);
-      const first = children[0];
-      if (first) setActiveChild(first);
-    }).catch(() => null);
-  }, []);
+  const [searchParams] = useSearchParams();
+  const { activeChild, allChildren } = useActiveChild();
 
   const childId = activeChild?.id ?? null;
   const { schedule, bitesThisWeek, loading: schedLoading, refresh: refreshSchedule } = useSchedule(childId);
@@ -452,9 +446,9 @@ export function Dashboard() {
   }
 
   const handleChildSwitch = (id: string) => {
-    const child = allChildren.find(c => c.id === id);
-    if (child) setActiveChild(child);
-    else void api.get<Child>(`/children/${id}`).then(setActiveChild).catch(() => null);
+    const params = new URLSearchParams(searchParams);
+    params.set('child', id);
+    navigate(`/?${params.toString()}`);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────

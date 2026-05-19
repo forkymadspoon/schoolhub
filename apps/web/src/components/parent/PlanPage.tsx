@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Child } from '@schoolhub/types';
 import { api } from '../../services/api';
+import { useActiveChild } from '../../hooks/useActiveChild';
 import { useSchedule } from '../../hooks/useSchedule';
 import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { DataUpload } from './DataUpload';
@@ -50,7 +51,7 @@ function intensityBg(intensity: string) {
 }
 
 export function PlanPage() {
-  const [activeChild, setActiveChild] = useState<Child | null>(null);
+  const { activeChild } = useActiveChild();
   const [view, setView] = useState<'today' | 'timeline' | 'calendar'>('today');
   const [showRegen, setShowRegen] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -58,18 +59,13 @@ export function PlanPage() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
 
   useEffect(() => {
-    void api.get<Child[]>('/children').then(children => {
-      const first = children[0];
-      if (first) {
-        setActiveChild(first);
-        setChecklist([
-          { id: '1', text: `${first.name}: 20–30 min focused practice on weak topics, 4–5×/week`, done: false },
-          { id: '2', text: `${first.name}: Review key concepts before each study session`, done: false },
-          { id: '3', text: `${first.name}: Protect 9+ hrs sleep and 1 unstructured day each week`, done: false },
-        ]);
-      }
-    }).catch(() => null);
-  }, []);
+    if (!activeChild) return;
+    setChecklist([
+      { id: '1', text: `${activeChild.name}: 20–30 min focused practice on weak topics, 4–5×/week`, done: false },
+      { id: '2', text: `${activeChild.name}: Review key concepts before each study session`, done: false },
+      { id: '3', text: `${activeChild.name}: Protect 9+ hrs sleep and 1 unstructured day each week`, done: false },
+    ]);
+  }, [activeChild?.id]);
 
   const fetchToday = useCallback(() => {
     if (!activeChild) return;

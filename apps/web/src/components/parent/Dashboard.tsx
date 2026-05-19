@@ -551,7 +551,7 @@ export function Dashboard() {
       )}
 
       {/* Two-column body */}
-      <div className={`flex-1 grid grid-cols-1 md:grid-cols-[1fr_300px] overflow-hidden transition-opacity duration-200 ${schedLoading ? 'opacity-50' : 'opacity-100'}`}>
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_300px] overflow-hidden">
 
         {/* ═══ LEFT COLUMN ═══ */}
         <div className="flex flex-col gap-4 px-4 md:px-6 py-5 pb-24 md:pb-8 overflow-y-auto">

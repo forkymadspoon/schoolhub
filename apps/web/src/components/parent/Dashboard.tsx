@@ -402,6 +402,9 @@ export function Dashboard() {
   const [showRegen, setShowRegen]                 = useState(false);
   const [showWellbeing, setShowWellbeing]         = useState(false);
   const [showNotifSettings, setShowNotifSettings] = useState(false);
+  const [planGenerating, setPlanGenerating]       = useState(
+    (location.state as { planGenerating?: boolean } | null)?.planGenerating ?? false
+  );
 
   useEffect(() => {
     void api.get<Child[]>('/children').then(children => {
@@ -412,9 +415,17 @@ export function Dashboard() {
   }, []);
 
   const childId = activeChild?.id ?? null;
-  const { bitesThisWeek, loading: schedLoading, refresh: refreshSchedule } = useSchedule(childId);
+  const { schedule, bitesThisWeek, loading: schedLoading, refresh: refreshSchedule } = useSchedule(childId);
   const { signals, acknowledge, refresh: refreshWellbeing } = useWellbeing(childId);
   const { stats } = useStats(childId);
+
+  // Poll every 5s until schedule appears, then dismiss the banner
+  useEffect(() => {
+    if (!planGenerating || !childId) return;
+    if (schedule !== null) { setPlanGenerating(false); return; }
+    const id = setInterval(() => { refreshSchedule(); }, 5000);
+    return () => clearInterval(id);
+  }, [planGenerating, childId, schedule, refreshSchedule]);
 
   useEffect(() => {
     if (!childId) return;
@@ -526,6 +537,24 @@ export function Dashboard() {
           + Add child
         </button>
       </div>
+
+      {/* Plan generating banner */}
+      {planGenerating && (
+        <div className="mx-4 md:mx-6 mt-4 rounded-card bg-primary-soft border border-primary/20 px-4 py-3 flex items-center gap-3">
+          <span className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin flex-shrink-0" />
+          <p className="text-sm text-primary font-medium flex-1">
+            Your plan is being generated in the background — this usually takes under a minute.
+          </p>
+          <button
+            type="button"
+            onClick={() => setPlanGenerating(false)}
+            className="text-primary/50 hover:text-primary text-lg leading-none min-h-0 flex-shrink-0"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Two-column body */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_300px] overflow-hidden">

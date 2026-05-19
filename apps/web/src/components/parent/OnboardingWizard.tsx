@@ -1009,6 +1009,7 @@ export function OnboardingWizard() {
   const dismissTarget = (location.state as { from?: string } | null)?.from ?? '/';
   const [screen, setScreen] = useState<WizardScreen>('welcome');
   const [submitting, setSubmitting] = useState(false);
+  const [pendingChildId, setPendingChildId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [state, setState] = useState<WizardState>({
@@ -1093,6 +1094,7 @@ export function OnboardingWizard() {
         grade_band: gradeBandForLevel(grade),
         sen_profile: deriveSENProfile(state.senTags),
       });
+      setPendingChildId(childId);
 
       await api.post('/schedules/generate', {
         child_id: childId,
@@ -1126,7 +1128,7 @@ export function OnboardingWizard() {
               <span className="text-xs text-muted">{TIME_ESTIMATES[screen]}</span>
               <button
                 type="button"
-                onClick={() => navigate(dismissTarget, { state: { skipOnboardingRedirect: true } })}
+                onClick={() => navigate(dismissTarget, { state: { skipOnboardingRedirect: true, ...(submitting && pendingChildId ? { planGenerating: true } : {}) } })}
                 className="text-xs text-muted hover:text-ink underline transition-colors"
               >
                 Save & exit

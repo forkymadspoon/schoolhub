@@ -17,8 +17,15 @@ import { dataRouter } from './routes/data.js';
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
+const ALWAYS_ALLOWED = ['https://schoolhub-azure.vercel.app'];
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? [(process.env.ALLOWED_ORIGIN ?? 'https://schoolhub.app').replace(/\/$/, '')]
+  ? [
+      ...ALWAYS_ALLOWED,
+      ...(process.env.ALLOWED_ORIGIN ?? '')
+        .split(',')
+        .map(o => o.trim().replace(/\/$/, ''))
+        .filter(Boolean),
+    ]
   : true; // allow all origins in local dev
 app.use(cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '10mb' }));

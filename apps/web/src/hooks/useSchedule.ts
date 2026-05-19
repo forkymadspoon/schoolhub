@@ -14,6 +14,8 @@ export function useSchedule(childId: string | null) {
 
   const fetch = useCallback(() => {
     if (!childId) return;
+    setData(null);
+    setError(null);
     setLoading(true);
     void api
       .get<ActiveScheduleResponse>(`/schedules/${childId}/active`)

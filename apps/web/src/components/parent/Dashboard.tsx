@@ -561,7 +561,10 @@ export function Dashboard() {
             <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/10 pointer-events-none" />
             <div className="absolute -right-2 top-16 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
 
-            <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest z-10">{statusLabel}</p>
+            <div className="flex items-center justify-between z-10">
+              <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest">{statusLabel}</p>
+              {activeChild && <p className="text-white text-xs font-semibold">{activeChild.name}</p>}
+            </div>
 
             {schedLoading ? (
               <div className="h-14 w-40 bg-white/20 rounded-xl animate-pulse" />

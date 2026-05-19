@@ -14,13 +14,11 @@ export function useSchedule(childId: string | null) {
 
   const fetch = useCallback(() => {
     if (!childId) return;
-    setData(null);
-    setError(null);
     setLoading(true);
     void api
       .get<ActiveScheduleResponse>(`/schedules/${childId}/active`)
-      .then(setData)
-      .catch((e: unknown) => setError(String(e)))
+      .then(d => { setData(d); setError(null); })
+      .catch((e: unknown) => { setData(null); setError(String(e)); })
       .finally(() => setLoading(false));
   }, [childId]);
 

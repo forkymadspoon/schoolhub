@@ -66,6 +66,52 @@ function fixLabel(label: string, grade?: GradeLevel): string {
   return label;
 }
 
+const ADVICE: Record<GradeLevel, [green: string, yellow: string, red: string]> = {
+  K2:  [
+    'Focus on phonics, number bonds and shapes',
+    'Practise letter writing and simple counting',
+    'Read aloud daily — P1 is almost here!',
+  ],
+  P1:  [
+    'Build reading habits — 10 min a day goes far',
+    'Practise sight words and simple addition',
+    'Enjoy the break — keep reading for fun',
+  ],
+  P2:  [
+    'Strengthen reading comprehension daily',
+    'Revise multiplication tables and word problems',
+    'Short revision keeps knowledge fresh',
+  ],
+  P3:  [
+    'Master the basics before the exam — 15 min daily',
+    'Revisit weak chapters and do practice papers',
+    'Light revision on high-weightage topics only',
+  ],
+  P4:  [
+    'Build problem-solving habits — one sum a day',
+    'Cover all topics and mark errors carefully',
+    'Short daily revision; rest is part of the plan',
+  ],
+  P5:  [
+    'P5 content is PSLE-heavy — lay strong foundations',
+    'Timed practice papers build exam stamina',
+    'Focus on high-frequency topics; protect sleep',
+  ],
+  P6:  [
+    'Steady habits beat last-minute cramming',
+    'Every session counts — focus on weak topics',
+    'Prioritise revision and protect sleep',
+  ],
+};
+
+function adviceText(grade: GradeLevel | undefined, days: number): string {
+  if (!grade) return 'Keep up the daily practice';
+  const [green, yellow, red] = ADVICE[grade];
+  if (days > 60) return green;
+  if (days > 30) return yellow;
+  return red;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function ExamCountdownWidget({ childId, gradeLevel, canHide = false }: Props) {
@@ -111,6 +157,8 @@ export function ExamCountdownWidget({ childId, gradeLevel, canHide = false }: Pr
         ? 'status-dot-yellow'
         : 'status-dot-red';
 
+  const tip = adviceText(gradeLevel, current.days_remaining);
+
   return (
     <div className="flex items-center gap-2">
       <button
@@ -121,6 +169,7 @@ export function ExamCountdownWidget({ childId, gradeLevel, canHide = false }: Pr
         <span className={cn('status-dot', dotClass)} aria-hidden="true" />
         <span>
           {current.label} · {current.days_remaining} days
+          <span className="text-muted font-normal"> · {tip}</span>
         </span>
       </button>
 

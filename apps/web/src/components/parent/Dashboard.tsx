@@ -1,18 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useActiveChild } from '../../hooks/useActiveChild';
 import type { Child, WellbeingSignal } from '@schoolhub/types';
 import type { GradeLevel } from '@schoolhub/types';
-import { api } from '../../services/api';
 import { useSchedule } from '../../hooks/useSchedule';
 import { useWellbeing } from '../../hooks/useWellbeing';
 import { useStats } from '../../hooks/useStats';
 import { subscribeToChildEvents } from '../../services/realtime';
-import { ExamCountdownWidget } from '../shared/ExamCountdownWidget';
 import { ScheduleRegenModal } from './ScheduleRegenModal';
 import { WellbeingPanel } from './WellbeingPanel';
-import { NotificationSettings } from './NotificationSettings';
 import CalendarIcon   from '../../assets/icons/interface/calendar.svg?react';
 import ChecklistIcon  from '../../assets/icons/interface/checklist.svg?react';
 import BellIcon       from '../../assets/icons/interface/bell.svg?react';
@@ -23,7 +19,6 @@ import TickIcon       from '../../assets/icons/interface/tick.svg?react';
 import SyncIcon       from '../../assets/icons/interface/sync.svg?react';
 import CautionIcon    from '../../assets/icons/interface/caution.svg?react';
 import BookmarkIcon   from '../../assets/icons/interface/bookmark.svg?react';
-import ArrowDownIcon  from '../../assets/icons/interface/arrow-down.svg?react';
 import { getNextBreak, formatBreakDate } from '../../data/singaporeCalendar';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -33,102 +28,8 @@ const AVATAR_BG   = ['bg-primary-soft', 'bg-game-green-tint', 'bg-game-yellow-ti
 const AVATAR_TEXT = ['text-primary', 'text-game-green', 'text-ink', 'text-game-orange'];
 const HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
 function pct(done: number, total: number) {
   return total > 0 ? Math.round((done / total) * 100) : 0;
-}
-
-// ── ChildSwitcherDropdown ─────────────────────────────────────────────────────
-
-function ChildSwitcherDropdown({
-  allChildren,
-  activeChild,
-  onSwitch,
-  onAddChild,
-}: {
-  allChildren: Child[];
-  activeChild: Child | null;
-  onSwitch: (id: string) => void;
-  onAddChild: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const activeIdx = allChildren.findIndex(c => c.id === activeChild?.id);
-
-  function handleToggle() {
-    if (!open && triggerRef.current) {
-      const r = triggerRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + 8, left: r.left });
-    }
-    setOpen(o => !o);
-  }
-
-  return (
-    <div className="relative">
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={handleToggle}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-pill border border-line bg-surface text-ink text-[11px] font-semibold hover:bg-primary-soft/40 transition-colors min-h-0"
-      >
-        <span>{CHILD_EMOJIS[Math.max(activeIdx, 0) % CHILD_EMOJIS.length]}</span>
-        <span>{activeChild?.name ?? 'Select child'}</span>
-        <span className="opacity-70 font-normal text-xs">{activeChild?.grade_level}</span>
-        <ArrowDownIcon className={`w-3 h-3 opacity-80 ml-0.5 transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-
-      {open && createPortal(
-        <>
-          <div className="fixed inset-0 z-[200]" onClick={() => setOpen(false)} />
-          <div
-            className="fixed z-[201] bg-surface rounded-card shadow-card border border-line w-52 py-1.5 flex flex-col"
-            style={{ top: pos.top, left: pos.left }}
-          >
-            <p className="text-muted text-[10px] font-bold uppercase tracking-widest px-3 pt-1 pb-1.5">Switch child</p>
-            {allChildren.map((child, i) => (
-              <button
-                key={child.id}
-                type="button"
-                onClick={() => { onSwitch(child.id); setOpen(false); }}
-                className="flex items-center gap-2.5 px-3 py-2 hover:bg-primary-soft/40 transition-colors text-left"
-              >
-                <div className={`w-7 h-7 rounded-full ${AVATAR_BG[i % 4]} flex items-center justify-center flex-shrink-0`}>
-                  <span className="text-sm leading-none">{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-ink text-sm font-medium truncate">{child.name}</p>
-                  <p className="text-muted text-[10px]">{child.grade_level}</p>
-                </div>
-                {activeChild?.id === child.id && (
-                  <TickIcon className="w-4 h-4 text-primary flex-shrink-0" />
-                )}
-              </button>
-            ))}
-            <div className="border-t border-line mt-1 pt-1">
-              <button
-                type="button"
-                onClick={() => { onAddChild(); setOpen(false); }}
-                className="flex items-center gap-2.5 px-3 py-2 w-full hover:bg-primary-soft/40 transition-colors"
-              >
-                <div className="w-7 h-7 rounded-full border border-dashed border-line flex items-center justify-center flex-shrink-0">
-                  <span className="text-muted text-base leading-none">+</span>
-                </div>
-                <p className="text-muted text-sm">Add child</p>
-              </button>
-            </div>
-          </div>
-        </>,
-        document.body
-      )}
-    </div>
-  );
 }
 
 // ── NextBreakDashCard ─────────────────────────────────────────────────────────
@@ -398,14 +299,12 @@ export function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [showRegen, setShowRegen]                 = useState(false);
-  const [showWellbeing, setShowWellbeing]         = useState(false);
-  const [showNotifSettings, setShowNotifSettings] = useState(false);
-  const [planGenerating, setPlanGenerating]       = useState(
+  const [showRegen, setShowRegen]           = useState(false);
+  const [showWellbeing, setShowWellbeing]   = useState(false);
+  const [planGenerating, setPlanGenerating] = useState(
     (location.state as { planGenerating?: boolean } | null)?.planGenerating ?? false
   );
 
-  const [searchParams] = useSearchParams();
   const { activeChild, allChildren } = useActiveChild();
 
   const childId = activeChild?.id ?? null;
@@ -445,92 +344,10 @@ export function Dashboard() {
     return 'Steady progress builds lasting results.';
   }
 
-  const handleChildSwitch = (id: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('child', id);
-    navigate(`/?${params.toString()}`);
-  };
-
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-bg flex flex-col" data-sen={activeChild?.sen_profile ?? undefined}>
-
-      {/* Mobile header */}
-      <header className="md:hidden bg-surface border-b border-line px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <img src="/logo.svg" alt="SchoolHub" className="w-32 h-auto" />
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowNotifSettings(true)}
-            className="relative w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
-            aria-label="Notifications"
-          >
-            <BellIcon className="w-3.5 h-3.5 text-muted" />
-            {openSignals > 0 && (
-              <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
-            )}
-          </button>
-        </div>
-      </header>
-
-      {/* Desktop header */}
-      <header className="hidden md:flex items-center justify-between px-8 border-b border-line bg-surface sticky top-0 z-10 h-[90px]">
-        <div className="flex flex-col gap-1.5">
-          <p className="text-muted text-xs">
-            {new Date().toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </p>
-          <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-ink font-bold text-xl">{greeting()}</h1>
-            <ChildSwitcherDropdown
-              allChildren={allChildren}
-              activeChild={activeChild}
-              onSwitch={handleChildSwitch}
-              onAddChild={() => navigate('/onboarding', { state: { from: location.pathname } })}
-            />
-            {activeChild && (
-              <ExamCountdownWidget childId={activeChild.id} gradeLevel={activeChild.grade_level} />
-            )}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowNotifSettings(true)}
-          className="relative w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary-soft/40 transition-colors"
-          aria-label="Notifications"
-        >
-          <BellIcon className="w-3.5 h-3.5 text-muted" />
-          {openSignals > 0 && (
-            <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-game-orange border border-surface" />
-          )}
-        </button>
-      </header>
-
-      {/* Mobile child pills */}
-      <div className="md:hidden flex items-center gap-2 flex-wrap px-4 pt-3">
-        {allChildren.map((child, i) => (
-          <button
-            key={child.id}
-            type="button"
-            onClick={() => handleChildSwitch(child.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-pill text-sm font-semibold transition-colors ${
-              activeChild?.id === child.id
-                ? 'bg-primary text-white'
-                : 'bg-primary-soft text-primary hover:bg-primary/20'
-            }`}
-          >
-            <span>{CHILD_EMOJIS[i % CHILD_EMOJIS.length]}</span>
-            <span>{child.name} {child.grade_level}</span>
-          </button>
-        ))}
-        <button
-          type="button"
-          onClick={() => navigate('/onboarding', { state: { from: location.pathname } })}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-pill text-sm font-semibold border border-dashed border-line text-muted hover:border-primary hover:text-primary transition-colors min-h-0"
-        >
-          + Add child
-        </button>
-      </div>
+    <div className="bg-bg flex flex-col" data-sen={activeChild?.sen_profile ?? undefined}>
 
       {/* Plan generating banner */}
       {planGenerating && (
@@ -708,24 +525,6 @@ export function Dashboard() {
         />
       )}
 
-      {showNotifSettings && (
-        <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-ink/40"
-          onClick={() => setShowNotifSettings(false)}
-        >
-          <div
-            className="bg-surface rounded-t-card sm:rounded-card shadow-card w-full max-w-lg mx-0 sm:mx-4 p-6"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-ink font-semibold text-lg">Notification settings</h2>
-              <button type="button" onClick={() => setShowNotifSettings(false)}
-                className="text-muted hover:text-ink text-xl" aria-label="Close">×</button>
-            </div>
-            <NotificationSettings />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

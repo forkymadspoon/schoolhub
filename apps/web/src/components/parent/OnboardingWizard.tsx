@@ -875,17 +875,64 @@ function ScreenGoals({
 
 // ─── Screen: Generate / All set ──────────────────────────────────────────────
 
+const PLAN_STEPS = [
+  'Creating your child\'s profile…',
+  'Analysing subjects and goals…',
+  'Mapping the school calendar…',
+  'Spacing out topics for best retention…',
+  'Building the weekly schedule…',
+  'Almost there — finishing up…',
+];
+
+function PlanLoadingScreen({ childName }: { childName: string }) {
+  const [stepIdx, setStepIdx] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setStepIdx(i => Math.min(i + 1, PLAN_STEPS.length - 1));
+    }, 3500);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center gap-6 py-6 text-center">
+      <div className="relative w-16 h-16">
+        <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+        <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center text-2xl">⚡</div>
+      </div>
+      <div>
+        <h2 className="text-xl font-black text-ink">Building {childName}'s plan</h2>
+        <p className="text-sm text-muted mt-1">This usually takes 15–30 seconds</p>
+      </div>
+      <div className="w-full bg-line rounded-full h-1.5 overflow-hidden">
+        <div
+          className="h-full bg-primary rounded-full transition-all duration-[3000ms] ease-out"
+          style={{ width: `${((stepIdx + 1) / PLAN_STEPS.length) * 100}%` }}
+        />
+      </div>
+      <p className="text-sm text-primary font-medium min-h-[1.5rem] transition-all">
+        {PLAN_STEPS[stepIdx]}
+      </p>
+    </div>
+  );
+}
+
 function ScreenGenerate({
   state,
   error,
+  submitting,
 }: {
   state: WizardState;
   error: string | null;
+  submitting: boolean;
 }) {
   const isK2 = state.gradeLevel === 'K2';
   const senLabel = state.senTags.length > 0
     ? state.senTags.map(t => SEN_OPTIONS.find(o => o.value === t)?.label ?? t).join(', ')
     : 'None';
+
+  if (submitting) return <PlanLoadingScreen childName={state.childName || 'your child'} />;
 
   return (
     <div className="space-y-6">
@@ -1110,10 +1157,10 @@ export function OnboardingWizard() {
         {screen === 'wellbeing' && <ScreenWellbeing state={state} set={set} />}
         {screen === 'psle-prep' && <ScreenPslePrep state={state} set={set} />}
         {screen === 'goals' && <ScreenGoals state={state} set={set} />}
-        {screen === 'generate' && <ScreenGenerate state={state} error={error} />}
+        {screen === 'generate' && <ScreenGenerate state={state} error={error} submitting={submitting} />}
 
         {/* Navigation */}
-        {screen !== 'welcome' && (
+        {screen !== 'welcome' && !submitting && (
           <div className="flex gap-3 mt-6">
             <button
               type="button"

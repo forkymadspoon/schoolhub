@@ -374,7 +374,7 @@ export function Dashboard() {
         <div className="flex flex-col gap-4 px-4 md:px-6 py-5 pb-24 md:pb-8 overflow-y-auto">
 
           {/* 1. Blue hero card */}
-          <div className="rounded-card bg-primary px-5 py-6 flex flex-col gap-3 relative overflow-hidden">
+          <div className="rounded-card bg-primary px-5 py-6 flex flex-col gap-3 relative overflow-hidden min-h-[180px]">
             <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/10 pointer-events-none" />
             <div className="absolute -right-2 top-16 w-20 h-20 rounded-full bg-white/5 pointer-events-none" />
 
@@ -383,17 +383,13 @@ export function Dashboard() {
               {activeChild && <p className="text-white text-xs font-semibold">{activeChild.name}</p>}
             </div>
 
-            {schedLoading ? (
-              <div className="h-14 w-40 bg-white/20 rounded-xl animate-pulse" />
-            ) : (
-              <div className="z-10">
-                <p className="text-white font-black leading-none text-5xl">
-                  {progress}%
-                  <span className="text-white/60 text-xl font-medium ml-2">this week</span>
-                </p>
-                <p className="text-white/70 text-sm mt-1.5">{bDone} of {bTotal} bites completed</p>
-              </div>
-            )}
+            <div className={`z-10 transition-opacity duration-200 ${schedLoading ? 'opacity-40' : 'opacity-100'}`}>
+              <p className="text-white font-black leading-none text-5xl">
+                {progress}%
+                <span className="text-white/60 text-xl font-medium ml-2">this week</span>
+              </p>
+              <p className="text-white/70 text-sm mt-1.5">{bDone} of {bTotal} bites completed</p>
+            </div>
 
             {bTotal > 0 && (
               <div className="h-1.5 bg-white/20 rounded-full overflow-hidden z-10">

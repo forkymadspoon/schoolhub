@@ -361,6 +361,7 @@ export function SettingsPage() {
       await api.delete(`/children/${childId}`);
       setChildren(cs => cs.filter(c => c.id !== childId));
       setConfirmDeleteId(null);
+      window.dispatchEvent(new Event('children-updated'));
     } catch {
       // silently reset — API error unlikely to need surfacing here
     } finally {

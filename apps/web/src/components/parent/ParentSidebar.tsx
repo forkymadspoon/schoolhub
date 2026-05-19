@@ -24,7 +24,10 @@ export function ParentSidebar() {
   const [children, setChildren] = useState<Child[]>([]);
 
   useEffect(() => {
-    void api.get<Child[]>('/children').then(setChildren).catch(() => null);
+    const fetch = () => void api.get<Child[]>('/children').then(setChildren).catch(() => null);
+    fetch();
+    window.addEventListener('children-updated', fetch);
+    return () => window.removeEventListener('children-updated', fetch);
   }, []);
 
   const activeChildId = searchParams.get('child') ?? children[0]?.id ?? null;

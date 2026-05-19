@@ -990,7 +990,6 @@ function ScreenGenerate({
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <div className="text-5xl mb-3">{state.avatar || '⚡'}</div>
         <h2 className="text-2xl font-black text-ink">All set!</h2>
         <p className="text-sm text-muted mt-1">
           {state.childName}'s personalised plan is ready to generate.
@@ -1139,6 +1138,7 @@ export function OnboardingWizard() {
   async function handleFinish() {
     setSubmitting(true);
     setError(null);
+    const startedAt = Date.now();
     try {
       const grade = state.gradeLevel as GradeLevel;
       const { id: childId } = await api.post<{ id: string }>('/children', {
@@ -1156,6 +1156,9 @@ export function OnboardingWizard() {
         weekly_minutes: state.weeklyMinutes,
         trigger_reason: 'initial',
       });
+
+      const remaining = 5000 - (Date.now() - startedAt);
+      if (remaining > 0) await new Promise(res => setTimeout(res, remaining));
 
       navigate('/', { replace: true });
     } catch (err) {

@@ -8,7 +8,10 @@ export function useActiveChild() {
   const [allChildren, setAllChildren] = useState<Child[]>([]);
 
   useEffect(() => {
-    void api.get<Child[]>('/children').then(setAllChildren).catch(() => null);
+    const fetch = () => void api.get<Child[]>('/children').then(setAllChildren).catch(() => null);
+    fetch();
+    window.addEventListener('children-updated', fetch);
+    return () => window.removeEventListener('children-updated', fetch);
   }, []);
 
   const childIdParam = searchParams.get('child');

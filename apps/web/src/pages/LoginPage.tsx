@@ -78,7 +78,7 @@ export function LoginPage() {
       <div className="w-full lg:w-1/2 flex flex-col bg-white border-r border-line flex-shrink-0">
 
         {/* Top bar */}
-        <div className="px-8 py-5 flex items-center justify-between border-b border-line">
+        <div className="px-8 flex items-center justify-between border-b border-line" style={{ minHeight: 60 }}>
           <Link to="/" className="flex items-center gap-2.5 min-h-0 min-w-0">
             <img src="/logo.svg" alt="SchoolHub" height={44} width={161} />
           </Link>

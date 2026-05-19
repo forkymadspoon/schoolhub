@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { GradeLevel, SENProfile, Subject } from '@schoolhub/types';
 import { gradeBandForLevel } from '@schoolhub/types';

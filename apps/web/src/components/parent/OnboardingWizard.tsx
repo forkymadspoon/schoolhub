@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import Lottie from 'lottie-react';
+import coffeeBreakAnimation from '../../assets/animations/coffee-break.json';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { GradeLevel, SENProfile, Subject } from '@schoolhub/types';
 import { gradeBandForLevel } from '@schoolhub/types';
@@ -895,12 +897,12 @@ function PlanLoadingScreen({ childName }: { childName: string }) {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-6 py-6 text-center">
-      <div className="relative w-16 h-16">
-        <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
-        <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-        <div className="absolute inset-0 flex items-center justify-center text-2xl">⚡</div>
-      </div>
+    <div className="flex flex-col items-center gap-4 py-4 text-center">
+      <Lottie
+        animationData={coffeeBreakAnimation}
+        loop
+        className="w-52 h-52"
+      />
       <div>
         <h2 className="text-xl font-black text-ink">Building {childName}'s plan</h2>
         <p className="text-sm text-muted mt-1">This usually takes 15–30 seconds</p>
@@ -911,7 +913,7 @@ function PlanLoadingScreen({ childName }: { childName: string }) {
           style={{ width: `${((stepIdx + 1) / PLAN_STEPS.length) * 100}%` }}
         />
       </div>
-      <p className="text-sm text-primary font-medium min-h-[1.5rem] transition-all">
+      <p className="text-sm text-primary font-medium min-h-[1.5rem]">
         {PLAN_STEPS[stepIdx]}
       </p>
     </div>

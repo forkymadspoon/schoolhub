@@ -59,7 +59,7 @@ function AppHeader({ isHome, pageTitle }: { isHome: boolean; pageTitle: string }
       </header>
 
       {/* Desktop header */}
-      <header className="hidden md:flex items-center justify-between px-8 border-b border-line bg-surface sticky top-0 z-10 h-[90px]">
+      <header className="hidden md:flex items-center justify-between px-8 border-b border-line bg-surface h-[90px] shrink-0">
         <div className="flex flex-col gap-1.5">
           {isHome && (
             <p className="text-muted text-xs">
@@ -154,7 +154,7 @@ function PageShell({ title, children }: { title: string; children: ReactNode }) 
 
 function AlphaBanner() {
   return (
-    <div className="w-full bg-primary px-4 py-1.5 text-center text-xs text-white/80 tracking-wide">
+    <div className="w-full h-7 bg-primary px-4 flex items-center justify-center text-xs text-white/80 tracking-wide shrink-0">
       Alpha — schedules are illustrative
     </div>
   );
@@ -183,41 +183,43 @@ export function ParentDashboard() {
   const isHome = location.pathname === '/';
 
   return (
-    <div className="flex flex-col min-h-screen bg-bg">
+    <div className="flex flex-col h-screen overflow-hidden bg-bg">
       <AlphaBanner />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-0">
         <ParentSidebar />
-        <div className="flex-1 flex flex-col min-w-0 md:ml-60">
+        <div className="flex-1 flex flex-col min-w-0">
           <AppHeader isHome={isHome} pageTitle={pageTitle} />
 
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
 
-            <Route path="/plan" element={
-              <PageShell title="Plan">
-                <PlanPage />
-              </PageShell>
-            } />
+              <Route path="/plan" element={
+                <PageShell title="Plan">
+                  <PlanPage />
+                </PageShell>
+              } />
 
-            <Route path="/progress" element={
-              <PageShell title="Progress">
-                <ProgressPage />
-              </PageShell>
-            } />
+              <Route path="/progress" element={
+                <PageShell title="Progress">
+                  <ProgressPage />
+                </PageShell>
+              } />
 
-            <Route path="/wellbeing" element={
-              <PageShell title="Wellbeing">
-                <WellbeingPage />
-              </PageShell>
-            } />
+              <Route path="/wellbeing" element={
+                <PageShell title="Wellbeing">
+                  <WellbeingPage />
+                </PageShell>
+              } />
 
-            <Route path="/settings" element={
-              <PageShell title="Settings">
-                <SettingsPage />
-              </PageShell>
-            } />
-          </Routes>
-          <ParentBottomNav />
+              <Route path="/settings" element={
+                <PageShell title="Settings">
+                  <SettingsPage />
+                </PageShell>
+              } />
+            </Routes>
+            <ParentBottomNav />
+          </div>
         </div>
       </div>
     </div>
